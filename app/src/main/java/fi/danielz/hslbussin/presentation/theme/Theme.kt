@@ -1,4 +1,4 @@
-package com.example.hslbussin.presentation.theme
+package fi.danielz.hslbussin.presentation.theme
 
 import androidx.compose.runtime.Composable
 import androidx.wear.compose.material.MaterialTheme

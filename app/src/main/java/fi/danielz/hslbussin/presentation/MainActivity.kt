@@ -4,7 +4,7 @@
  * changes to the libraries and their usages.
  */
 
-package com.example.hslbussin.presentation
+package fi.danielz.hslbussin.presentation
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -22,8 +22,8 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
-import com.example.hslbussin.R
-import com.example.hslbussin.presentation.theme.HSLBussinTheme
+import fi.danielz.hslbussin.R
+import fi.danielz.hslbussin.presentation.theme.HSLBussinTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

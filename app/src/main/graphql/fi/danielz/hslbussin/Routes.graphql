@@ -1,0 +1,6 @@
+query Routes {
+  routes(transportModes:BUS) {
+    gtfsId
+    shortName
+  }
+}

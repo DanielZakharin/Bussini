@@ -15,4 +15,7 @@ class RouteSelectionViewModel @Inject constructor(
     val routes by lazy {
         dataSource.routes
     }
+    val errors by lazy {
+        dataSource.errors
+    }
 }

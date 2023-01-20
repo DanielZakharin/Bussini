@@ -12,6 +12,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -36,7 +37,7 @@ fun RouteSelectionScreen() {
         ) {
             errorBanner(errorState = errorsState)
             ScalingLazyColumn(
-                verticalArrangement = Arrangement.Center,
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 items(routesState.value.size) {
                     routeRow(route = routesState.value[it])
@@ -53,7 +54,12 @@ fun routeRow(route: RouteData) {
     }) {
         Row {
             Icon(imageVector = Icons.Default.DirectionsBus, contentDescription = "")
-            Text(text = route.name, textAlign = TextAlign.Center)
+            Text(
+                text = route.name,
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
         }
     }
 }

@@ -20,7 +20,7 @@ interface RouteData {
  */
 class RoutesQueryData(queryDataItem: RoutesQuery.Route) : RouteData {
     override val gtfsId: String = queryDataItem.gtfsId
-    override val name: String = queryDataItem.shortName ?: ""
+    override val name: String = "${queryDataItem.shortName} - ${queryDataItem.longName}"
 }
 
 /**

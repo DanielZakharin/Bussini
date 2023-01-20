@@ -12,5 +12,7 @@ class RouteSelectionViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     val dataSource: RoutesDataSource
 ) : ViewModel() {
-
+    val routes by lazy {
+        dataSource.routes
+    }
 }

@@ -1,8 +1,7 @@
 package fi.danielz.hslbussin.presentation.routeselection.model
 
 import com.apollographql.apollo3.ApolloClient
-import dagger.hilt.EntryPoint
-import dagger.hilt.InstallIn
+import com.apollographql.apollo3.api.Error
 import fi.danielz.hslbussin.RoutesQuery
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapNotNull
@@ -29,6 +28,7 @@ class RoutesQueryData(queryDataItem: RoutesQuery.Route) : RouteData {
  */
 interface RoutesDataSource {
     val routes: Flow<List<RouteData>>
+    val errors: Flow<List<Error>>
 }
 
 /**
@@ -37,11 +37,19 @@ interface RoutesDataSource {
  */
 class RoutesNetworkDataSource @Inject constructor(private val apolloClient: ApolloClient) :
     RoutesDataSource {
+    private val clientResult by lazy {
+        apolloClient.query(RoutesQuery()).toFlow()
+    }
     override val routes: Flow<List<RouteData>> by lazy {
-        apolloClient.query(RoutesQuery()).toFlow().mapNotNull {
+        clientResult.mapNotNull {
             it.data?.routes?.filterNotNull()?.map {
                 RoutesQueryData(it)
             }
+        }
+    }
+    override val errors: Flow<List<Error>> by lazy {
+        clientResult.mapNotNull {
+            it.errors
         }
     }
 }

@@ -10,6 +10,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.animation.ExperimentalAnimationApi
 import dagger.hilt.android.AndroidEntryPoint
 import fi.danielz.hslbussin.presentation.routeselection.compose.RouteSelectionScreen
 
@@ -18,6 +19,7 @@ class RouteSelectionActivity : ComponentActivity() {
 
     private val vm: RouteSelectionViewModel by viewModels()
 
+    @OptIn(ExperimentalAnimationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {

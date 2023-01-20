@@ -1,15 +1,15 @@
 package fi.danielz.hslbussin.presentation.routeselection
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import fi.danielz.hslbussin.presentation.routeselection.model.RouteData
 import fi.danielz.hslbussin.presentation.routeselection.model.RoutesDataSource
+import timber.log.Timber
 import javax.inject.Inject
 
 
 @HiltViewModel
 class RouteSelectionViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
     val dataSource: RoutesDataSource
 ) : ViewModel() {
     val routes by lazy {
@@ -17,5 +17,8 @@ class RouteSelectionViewModel @Inject constructor(
     }
     val errors by lazy {
         dataSource.errors
+    }
+    fun onRouteSelectedClick(route: RouteData) {
+        Timber.d("Clicked on ${route.name}")
     }
 }

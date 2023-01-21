@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_nav_graph"
     app:startDestination="@id/route_selection_fragment">
 
@@ -9,7 +10,9 @@
         android:name="fi.danielz.hslbussin.presentation.routeselection.RouteSelectionFragment">
         <action
             android:id="@+id/to_direction_selection"
-            app:destination="@id/direction_selection_fragment" />
+            app:destination="@id/direction_selection_fragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim" />
     </fragment>
 
     <fragment
@@ -20,7 +23,9 @@
             app:argType="string" />
         <action
             android:id="@+id/to_stop_selection"
-            app:destination="@id/stop_selection_fragment" />
+            app:destination="@id/stop_selection_fragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim" />
     </fragment>
 
     <fragment
@@ -32,6 +37,18 @@
         <argument
             android:name="directionId"
             app:argType="integer" />
+        <action
+            android:id="@+id/action_stop_selection_fragment_to_stopDisplayFragment"
+            app:destination="@id/stopDisplayFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popUpTo="@id/route_selection_fragment" />
     </fragment>
+    <fragment
+        android:id="@+id/stopDisplayFragment"
+        android:name="fi.danielz.hslbussin.presentation.stopdisplay.StopDisplayFragment"
+        android:label="StopDisplayFragment"
+        tools:layout="@layout/fragment_stop_display" />
+
 
 </navigation>

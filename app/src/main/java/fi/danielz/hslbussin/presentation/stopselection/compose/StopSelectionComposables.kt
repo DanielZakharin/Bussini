@@ -22,7 +22,12 @@ import fi.danielz.hslbussin.presentation.theme.HSLBussinTheme
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun StopSelectionScreen(stopsState: State<List<StopData>>, errorState: State<List<Error>?>, onBackPressed: () -> Unit) {
+fun StopSelectionScreen(
+    stopsState: State<List<StopData>>,
+    errorState: State<List<Error>?>,
+    onBackPressed: () -> Unit,
+    onStopSelectedPressed: (stopGtfsId: String) -> Unit,
+) {
     HSLBussinTheme {
         Column(
             modifier = Modifier
@@ -45,9 +50,10 @@ fun StopSelectionScreen(stopsState: State<List<StopData>>, errorState: State<Lis
                         )
                     } else {
                         val adjustedIndex = it - 1
+                        val stop = stopsState.value[adjustedIndex]
                         IconRow(
-                            item = stopsState.value[adjustedIndex],
-                            onClick = {},
+                            item = stop,
+                            onClick = { onStopSelectedPressed(stop.gtfsId) },
                             text = { it.name },
                             imageVector = Icons.Default.AirlineStops
                         )

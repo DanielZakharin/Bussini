@@ -1,0 +1,11 @@
+query Stop($stopId: String!, $patternId: String!) {
+    stop(id: $stopId) {
+        name
+        stopTimesForPattern(id: $patternId) {
+            serviceDay
+            realtime
+            realtimeDeparture
+            scheduledDeparture
+        }
+    }
+}

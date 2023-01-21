@@ -1,5 +1,6 @@
 package fi.danielz.hslbussin.presentation.directionselection
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,11 +14,14 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
 import fi.danielz.hslbussin.R
+import fi.danielz.hslbussin.preferences.SharedPreferencesManager
+import fi.danielz.hslbussin.preferences.writePattern
 import fi.danielz.hslbussin.presentation.directionselection.compose.DirectionSelectionScreen
 import fi.danielz.hslbussin.presentation.routeselection.RouteSelectionViewModel
 
 /**
  * Simple fragment for selecting a direction of a route
+ * Saves route and direction IDS to preferences
  */
 @AndroidEntryPoint
 class DirectionSelectionFragment : Fragment() {
@@ -39,6 +43,12 @@ class DirectionSelectionFragment : Fragment() {
                 DirectionSelectionScreen(navargs.selectedRouteId, errorsState, routesState, {
                     findNavController().popBackStack()
                 }) { routeId, directionId ->
+                    val routePattern = "$routeId:$directionId:01"
+
+                    SharedPreferencesManager(
+                        requireActivity().getPreferences(Context.MODE_PRIVATE)
+                    ).writePattern(routePattern)
+
                     findNavController().navigate(
                         DirectionSelectionFragmentDirections.toStopSelection(
                             routeId,

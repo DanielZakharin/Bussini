@@ -16,7 +16,7 @@ interface StopData {
 }
 
 /**
- * Wrapper class for PatternQuery.Pattern.Stop that conforms to [PatternData]
+ * Wrapper class for PatternQuery.Pattern.Stop that conforms to [StopData]
  */
 class StopsQueryData(queryDataItem: PatternQuery.Stop): StopData {
     override val gtfsId: String = queryDataItem.gtfsId

@@ -85,6 +85,7 @@ dependencies {
 
     // apollo graphql
     implementation "com.apollographql.apollo3:apollo-runtime:3.7.3"
+    implementation "com.apollographql.apollo:apollo-android-support:2.5.14"
 
     // timber
     implementation 'com.jakewharton.timber:timber:5.0.1'

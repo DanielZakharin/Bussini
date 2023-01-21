@@ -26,7 +26,8 @@ abstract class DataBindingFragment<T : ViewDataBinding>(@LayoutRes private val l
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        return DataBindingUtil.inflate<T>(inflater, layoutRes, null, false).root
+        dataBinding = DataBindingUtil.inflate(inflater, layoutRes, null, false)
+        return dataBinding.root
     }
 
     override fun onResume() {

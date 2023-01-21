@@ -21,3 +21,13 @@ fun SharedPreferencesManager.writeStop(stopGtfsId: String) {
 fun SharedPreferencesManager.readStopAndPattern(): Pair<String?, String?> {
     return readString(SELECTED_STOP_GTFSID_KEY) to readString(SELECTED_PATTERN_GTFSID_KEY)
 }
+
+/**
+ * Convenience function to check if a route + stop has previously been selected
+ */
+
+fun SharedPreferencesManager.hasRequiredStopData(): Boolean {
+    return sharedPrefs.contains(SELECTED_STOP_GTFSID_KEY) && sharedPrefs.contains(
+        SELECTED_PATTERN_GTFSID_KEY
+    )
+}

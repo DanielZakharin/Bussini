@@ -25,7 +25,7 @@ interface PreferencesManager {
  * Implementation of [PreferencesManager] that stores values into {@link android.app.Activity.getPreferences Activity.getPreferences}
  */
 // TODO make this injectable with DI
-class SharedPreferencesManager constructor(private val sharedPrefs: SharedPreferences) :
+class SharedPreferencesManager constructor(internal val sharedPrefs: SharedPreferences) :
     PreferencesManager {
     override fun writeInt(key: String, value: Int) = with(sharedPrefs.edit()) {
         putInt(key, value)

@@ -13,6 +13,9 @@
             app:destination="@id/direction_selection_fragment"
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim" />
+        <action
+            android:id="@+id/action_route_selection_fragment_to_stopDisplayFragment"
+            app:destination="@id/stopDisplayFragment" />
     </fragment>
 
     <fragment

@@ -10,18 +10,19 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import timber.log.Timber
 
-abstract class SimpleRecyclerItem(protected val item: Any) {
+abstract class SimpleRecyclerItem(protected open val item: Any) {
     abstract fun inflateView(layoutInflater: LayoutInflater): View
     abstract val itemViewType: Int
     abstract fun onBind(holder: ViewHolder)
 }
 
 
-class SimpleDataBindingRecyclerItem<T, B : ViewDataBinding>(
+class SimpleDataBindingRecyclerItem<T : Any, B : ViewDataBinding>(
+    override val item: T,
     @LayoutRes private val layoutRes: Int,
     private val onBind: (T, B) -> Unit
 ) :
-    SimpleRecyclerItem() {
+    SimpleRecyclerItem(item) {
     fun inflateBinding(layoutInflater: LayoutInflater): B =
         DataBindingUtil.inflate(layoutInflater, layoutRes, null, false)
 
@@ -39,12 +40,7 @@ class SimpleDataBindingRecyclerItem<T, B : ViewDataBinding>(
             Timber.w("Could not find or bind a databinding for item!")
             return
         }
-        val typedItem = item as? T
-        if (typedItem == null) {
-            Timber.w("Bad recycler item! item type ${item::class.java.name}")
-            return
-        }
-        onBind(typedItem, binding)
+        onBind(item, binding)
     }
 }
 

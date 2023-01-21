@@ -1,0 +1,12 @@
+query StopDepartures {
+    stop(id:"HSL:2323247") {
+        gtfsId
+        name
+        stopTimesForPattern(id:"HSL:2531B:1:01") {
+            serviceDay
+            realtime
+            realtimeDeparture
+            scheduledDeparture
+        }
+    }
+}

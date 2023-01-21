@@ -3,5 +3,9 @@ query Routes {
     gtfsId
     shortName
     longName
+    patterns {
+      directionId
+      headsign
+    }
   }
 }

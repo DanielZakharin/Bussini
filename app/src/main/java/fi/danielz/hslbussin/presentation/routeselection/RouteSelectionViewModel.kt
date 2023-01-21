@@ -1,24 +1,21 @@
 package fi.danielz.hslbussin.presentation.routeselection
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import fi.danielz.hslbussin.presentation.routeselection.model.RouteData
 import fi.danielz.hslbussin.presentation.routeselection.model.RoutesDataSource
-import timber.log.Timber
 import javax.inject.Inject
 
 
 @HiltViewModel
 class RouteSelectionViewModel @Inject constructor(
+    app: Application,
     val dataSource: RoutesDataSource
-) : ViewModel() {
+) : AndroidViewModel(app) {
     val routes by lazy {
         dataSource.routes
     }
     val errors by lazy {
         dataSource.errors
-    }
-    fun onRouteSelectedClick(route: RouteData) {
-        Timber.d("Clicked on ${route.name}")
     }
 }

@@ -3,6 +3,7 @@ package fi.danielz.hslbussin.presentation.routeselection.model
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.Error
 import fi.danielz.hslbussin.RoutesQuery
+import fi.danielz.hslbussin.presentation.directionselection.model.DirectionData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapNotNull
 import javax.inject.Inject
@@ -13,6 +14,7 @@ import javax.inject.Inject
 interface RouteData {
     val gtfsId: String
     val name: String
+    val directions: List<DirectionData>?
 }
 
 /**
@@ -21,6 +23,9 @@ interface RouteData {
 class RoutesQueryData(queryDataItem: RoutesQuery.Route) : RouteData {
     override val gtfsId: String = queryDataItem.gtfsId
     override val name: String = "${queryDataItem.shortName} - ${queryDataItem.longName}"
+    override val directions: List<DirectionData>? = queryDataItem.patterns?.mapNotNull {
+        it?.let(::DirectionData)
+    }
 }
 
 /**

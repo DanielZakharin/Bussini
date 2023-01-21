@@ -1,10 +1,4 @@
-/* While this template provides a good starting point for using Wear Compose, you can always
- * take a look at https://github.com/android/wear-os-samples/tree/main/ComposeStarter and
- * https://github.com/android/wear-os-samples/tree/main/ComposeAdvanced to find the most up to date
- * changes to the libraries and their usages.
- */
-
-package fi.danielz.hslbussin.presentation.routeselection
+package fi.danielz.hslbussin.presentation.directionselection
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -16,13 +10,21 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
 import fi.danielz.hslbussin.R
-import fi.danielz.hslbussin.presentation.routeselection.compose.RouteSelectionScreen
+import fi.danielz.hslbussin.presentation.directionselection.compose.DirectionSelectionScreen
+import fi.danielz.hslbussin.presentation.routeselection.RouteSelectionViewModel
 
+/**
+ * Simple fragment for selecting a direction of a route
+ */
 @AndroidEntryPoint
-class RouteSelectionFragment : Fragment() {
-    private val vm: RouteSelectionViewModel by hiltNavGraphViewModels(R.id.main_nav_graph)
+class DirectionSelectionFragment : Fragment() {
+
+    private val navargs by navArgs<DirectionSelectionFragmentArgs>()
+
+    private val vm : RouteSelectionViewModel by hiltNavGraphViewModels(R.id.main_nav_graph)
 
     @OptIn(ExperimentalAnimationApi::class)
     override fun onCreateView(
@@ -34,15 +36,8 @@ class RouteSelectionFragment : Fragment() {
             setContent {
                 val routesState = vm.routes.collectAsState(initial = emptyList())
                 val errorsState = vm.errors.collectAsState(initial = null)
-                RouteSelectionScreen(
-                    routesState,
-                    errorsState
-                ) {
-                    this@RouteSelectionFragment.findNavController().navigate(
-                        RouteSelectionFragmentDirections.toDirectionSelection(
-                            it.gtfsId
-                        )
-                    )
+                DirectionSelectionScreen(navargs.selectedRouteId, errorsState, routesState) {
+                    findNavController().popBackStack()
                 }
             }
         }

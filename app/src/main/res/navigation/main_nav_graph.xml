@@ -6,6 +6,19 @@
 
     <fragment
         android:id="@+id/route_selection_fragment"
-        android:name="fi.danielz.hslbussin.presentation.routeselection.RouteSelectionFragment" />
+        android:name="fi.danielz.hslbussin.presentation.routeselection.RouteSelectionFragment">
+        <action
+            android:id="@+id/to_direction_selection"
+            app:destination="@id/direction_selection_fragment">
+        </action>
+    </fragment>
+
+    <fragment
+        android:id="@+id/direction_selection_fragment"
+        android:name="fi.danielz.hslbussin.presentation.directionselection.DirectionSelectionFragment">
+        <argument
+            android:name="selectedRouteId"
+            app:argType="string" />
+    </fragment>
 
 </navigation>

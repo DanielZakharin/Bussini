@@ -22,6 +22,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.wear.compose.material.*
 import com.apollographql.apollo3.api.Error
+import fi.danielz.hslbussin.compose.ErrorBanner
+import fi.danielz.hslbussin.compose.IconRow
+import fi.danielz.hslbussin.compose.SelectionHeaderWithLoadingAndBackButton
+import fi.danielz.hslbussin.compose.SelectionHeaderWithLoadingIndicator
 import fi.danielz.hslbussin.presentation.directionselection.model.DirectionData
 import fi.danielz.hslbussin.presentation.routeselection.RouteSelectionViewModel
 import fi.danielz.hslbussin.presentation.routeselection.model.RouteData
@@ -36,7 +40,8 @@ fun DirectionSelectionScreen(
     selectedRouteId: String,
     errorsState: State<List<Error>?>,
     routesState: State<List<RouteData>>,
-    onBackPressed: () -> Unit
+    onBackPressed: () -> Unit,
+    onItemSelected: (routeId: String, directionId: Int) -> Unit
 ) {
     HSLBussinTheme {
         Column(
@@ -54,92 +59,27 @@ fun DirectionSelectionScreen(
                 // add extra item for header
                 items(selectedRouteDirections.size + 1) {
                     if (it == 0) {
-                        DirectionsSelectionHeader(routesState, errorsState, onBackPressed)
+                        SelectionHeaderWithLoadingAndBackButton(
+                            routesState,
+                            errorsState,
+                            "Select direction",
+                            "Loading...",
+                            onBackPressed
+                        )
                     } else {
                         val adjustedIndex = it - 1
-                        DirectionRow(selectedRouteId, selectedRouteDirections[adjustedIndex])
+                        IconRow(
+                            item = selectedRouteDirections[adjustedIndex],
+                            text = { it.name ?: "" },
+                            imageVector = Icons.Default.CompareArrows
+                        ) {
+                            it.directionId?.let { dir ->
+                                onItemSelected(selectedRouteId, dir)
+                            }
+                        }
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-fun DirectionsSelectionHeader(
-    routeState: State<List<RouteData>?>,
-    errorState: State<List<Error>?>,
-    onBackPressed: () -> Unit
-) {
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        Color.DarkGray,
-                        Color.Gray
-                    )
-                ),
-                shape = RoundedCornerShape(8.dp)
-            )
-            .padding(8.dp)
-    ) {
-        // simple loading indicator
-        val loading = routeState.value.isNullOrEmpty() && errorState.value.isNullOrEmpty()
-        val text = if (loading) "Loading directions..." else "Select direction"
-        Row (modifier = Modifier.height(IntrinsicSize.Min), verticalAlignment = Alignment.CenterVertically) {
-            Button(
-                onClick = { onBackPressed() },
-                modifier = Modifier
-                    .padding(0.dp)
-                    .height(30.dp)
-                    .width(30.dp)
-                    .background(Color.Transparent),
-                shape = RoundedCornerShape(8.dp),
-            ) {
-                Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back Button", tint = Color.White)
-            }
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(text = text, textAlign = TextAlign.Start)
-            if (loading) {
-                Spacer(modifier = Modifier.weight(1f))
-                CircularProgressIndicator()
-            }
-        }
-    }
-}
-
-@Composable
-fun DirectionRow(selectedRouteId: String, directionData: DirectionData) {
-    Card(onClick = {
-        //vm.onDirectionSelectedClick(selectedRouteId, directionData.directionId)
-    }) {
-        Row {
-            Icon(imageVector = Icons.Default.CompareArrows, contentDescription = "")
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = directionData.name ?: "",
-                textAlign = TextAlign.Start,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-    }
-}
-
-@ExperimentalAnimationApi
-@Composable
-fun ErrorBanner(errorState: State<List<Error>?>) {
-    AnimatedVisibility(visible = !errorState.value.isNullOrEmpty()) {
-
-        Column(modifier = Modifier.padding(4.dp)) {
-            Text(text = "An error occurred, please try again later")
-            Button(content = {
-                Text(text = "Retry")
-            }, onClick = {
-                // TODO
-            })
         }
     }
 }

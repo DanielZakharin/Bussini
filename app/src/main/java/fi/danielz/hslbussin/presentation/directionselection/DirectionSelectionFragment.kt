@@ -24,7 +24,7 @@ class DirectionSelectionFragment : Fragment() {
 
     private val navargs by navArgs<DirectionSelectionFragmentArgs>()
 
-    private val vm : RouteSelectionViewModel by hiltNavGraphViewModels(R.id.main_nav_graph)
+    private val vm: RouteSelectionViewModel by hiltNavGraphViewModels(R.id.main_nav_graph)
 
     @OptIn(ExperimentalAnimationApi::class)
     override fun onCreateView(
@@ -36,8 +36,15 @@ class DirectionSelectionFragment : Fragment() {
             setContent {
                 val routesState = vm.routes.collectAsState(initial = emptyList())
                 val errorsState = vm.errors.collectAsState(initial = null)
-                DirectionSelectionScreen(navargs.selectedRouteId, errorsState, routesState) {
+                DirectionSelectionScreen(navargs.selectedRouteId, errorsState, routesState, {
                     findNavController().popBackStack()
+                }) { routeId, directionId ->
+                    findNavController().navigate(
+                        DirectionSelectionFragmentDirections.toStopSelection(
+                            routeId,
+                            directionId
+                        )
+                    )
                 }
             }
         }

@@ -1,4 +1,4 @@
-package fi.danielz.hslbussin.presentation.routeselection.compose
+package fi.danielz.hslbussin.presentation.stopselection.compose
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DirectionsBus
+import androidx.compose.material.icons.filled.AirlineStops
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
@@ -16,45 +16,40 @@ import androidx.wear.compose.material.ScalingLazyColumn
 import com.apollographql.apollo3.api.Error
 import fi.danielz.hslbussin.compose.ErrorBanner
 import fi.danielz.hslbussin.compose.IconRow
-import fi.danielz.hslbussin.compose.SelectionHeaderWithLoadingIndicator
-import fi.danielz.hslbussin.presentation.routeselection.model.RouteData
+import fi.danielz.hslbussin.compose.SelectionHeaderWithLoadingAndBackButton
+import fi.danielz.hslbussin.presentation.stopselection.model.StopData
 import fi.danielz.hslbussin.presentation.theme.HSLBussinTheme
 
-typealias RouteClick = (RouteData) -> Unit
-
-@ExperimentalAnimationApi
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun RouteSelectionScreen(
-    routesState: State<List<RouteData>>,
-    errorsState: State<List<Error>?>,
-    onRouteSelectedClick: RouteClick,
-) {
+fun StopSelectionScreen(stopsState: State<List<StopData>>, errorState: State<List<Error>?>, onBackPressed: () -> Unit) {
     HSLBussinTheme {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colors.background)
         ) {
-            ErrorBanner(errorState = errorsState)
+            ErrorBanner(errorState = errorState)
             ScalingLazyColumn(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 // add extra item for header
-                items(routesState.value.size + 1) {
+                items(stopsState.value.size + 1) {
                     if (it == 0) {
-                        SelectionHeaderWithLoadingIndicator(
-                            routesState,
-                            errorsState,
-                            "Select bus route",
-                            "Loading routes..."
+                        SelectionHeaderWithLoadingAndBackButton(
+                            stopsState,
+                            errorState,
+                            "Select stop",
+                            "Loading stops...",
+                            onBackPressed
                         )
                     } else {
                         val adjustedIndex = it - 1
                         IconRow(
-                            item = routesState.value[adjustedIndex],
-                            onClick = onRouteSelectedClick,
-                            imageVector = Icons.Default.DirectionsBus,
-                            text = { it.name }
+                            item = stopsState.value[adjustedIndex],
+                            onClick = {},
+                            text = { it.name },
+                            imageVector = Icons.Default.AirlineStops
                         )
                     }
                 }

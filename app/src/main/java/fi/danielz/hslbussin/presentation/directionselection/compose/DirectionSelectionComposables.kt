@@ -57,9 +57,7 @@ fun DirectionSelectionScreen(
                         DirectionsSelectionHeader(routesState, errorsState, onBackPressed)
                     } else {
                         val adjustedIndex = it - 1
-                        routesState.value[it].directions?.get(adjustedIndex)?.let { direction ->
-                            DirectionRow(selectedRouteId, direction)
-                        }
+                        DirectionRow(selectedRouteId, selectedRouteDirections[adjustedIndex])
                     }
                 }
             }

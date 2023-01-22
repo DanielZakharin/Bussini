@@ -1,16 +1,19 @@
 package fi.danielz.hslbussin.recyclerview
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import timber.log.Timber
 
-abstract class SimpleRecyclerItem(protected open val item: Any) {
+abstract class SimpleRecyclerItem(internal open val item: Any) {
     abstract fun inflateView(layoutInflater: LayoutInflater): View
     abstract val itemViewType: Int
     abstract fun onBind(holder: ViewHolder)
@@ -44,23 +47,39 @@ class SimpleDataBindingRecyclerItem<T : Any, B : ViewDataBinding>(
     }
 }
 
-/** Simple RecyclerView Adapter that accepts a list of [SimpleRecyclerItem]'s
+/** Simple RecyclerView ListAdapter that accepts a list of [SimpleRecyclerItem]'s
  * @param items items to create rows from. Layouts used by item must be databinding layouts **/
-class SimpleDataBindingRecyclerAdapter<T>(
-    private val items: List<SimpleRecyclerItem>
-) :
-    RecyclerView.Adapter<ViewHolder>() {
+class SimpleDataBindingRecyclerAdapter() :
+    ListAdapter<SimpleRecyclerItem, ViewHolder>(SimpleDiffCallback()) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(viewType, parent, true)
+        val view = LayoutInflater.from(parent.context).inflate(viewType, parent, false)
         return object : ViewHolder(view) {}
 
     }
 
-    override fun getItemCount(): Int = items.size
-
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        items[position].onBind(holder)
+        getItem(position).onBind(holder)
     }
 
-    override fun getItemViewType(position: Int): Int = items[position].itemViewType
+    override fun getItemViewType(position: Int): Int = getItem(position).itemViewType
+
+
+}
+
+class SimpleDiffCallback : DiffUtil.ItemCallback<SimpleRecyclerItem>() {
+    override fun areItemsTheSame(
+        oldItem: SimpleRecyclerItem,
+        newItem: SimpleRecyclerItem
+    ): Boolean {
+        return oldItem.itemViewType == newItem.itemViewType
+    }
+
+    @SuppressLint("DiffUtilEquals")
+    override fun areContentsTheSame(
+        oldItem: SimpleRecyclerItem,
+        newItem: SimpleRecyclerItem
+    ): Boolean {
+        return oldItem.item == newItem.item
+    }
+
 }

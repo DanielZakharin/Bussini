@@ -7,7 +7,10 @@ import fi.danielz.hslbussin.StopQuery
 import kotlinx.coroutines.flow.*
 import timber.log.Timber
 import java.text.SimpleDateFormat
+import java.time.Duration
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlin.math.floor
 
 interface StopSingleDepartureData {
     val timeUntilDeparture: Long
@@ -32,9 +35,23 @@ class StopSingleDepartureQueryData(queryDataItem: StopQuery.StopTimesForPattern)
     override val displayText: String = timeUntilDeparture.takeIf {
         it != -1L
     }?.let {
-        val timeInMinutes = it / 60000
-        "$timeInMinutes min"
+        millisToHoursMinutes(it)
     } ?: "unknown"
+
+    companion object {
+        // internal companion object to be able to be testable
+        // TODO consider moving outside this class
+        internal fun millisToHoursMinutes(millis: Long): String {
+            val duration = Duration.ofMillis(millis)
+            val hoursPart = duration.toHours()
+            val minutesPart = duration.minusHours(hoursPart).toMinutes().toInt()
+            return if (hoursPart > 0L) {
+                "${hoursPart}h ${minutesPart}min"
+            } else {
+                "${minutesPart}min"
+            }
+        }
+    }
 }
 
 interface StopDeparturesDataSource {

@@ -1,7 +1,7 @@
 package fi.danielz.hslbussin.routeselection
 
-import androidx.lifecycle.SavedStateHandle
 import com.apollographql.apollo3.api.Error
+import fi.danielz.hslbussin.presentation.directionselection.model.DirectionData
 import fi.danielz.hslbussin.presentation.routeselection.RouteSelectionViewModel
 import fi.danielz.hslbussin.presentation.routeselection.model.RouteData
 import fi.danielz.hslbussin.presentation.routeselection.model.RoutesDataSource
@@ -16,6 +16,8 @@ import org.junit.Test
 val mockRoute = object : RouteData {
     override val gtfsId: String = "test"
     override val name: String = "test route"
+    override val directions: List<DirectionData>
+        get() = emptyList()
 }
 
 val mockError = Error("Uh oh!", null, null, null, null)
@@ -44,7 +46,7 @@ class RouteSelectionViewModelTest {
     fun `Happy Path`() = runTest {
 
         val viewModel =
-            RouteSelectionViewModel(SavedStateHandle.createHandle(null, null), mockHappyDataSource)
+            RouteSelectionViewModel(mockHappyDataSource)
 
         val items = viewModel.routes.first()
 
@@ -56,7 +58,7 @@ class RouteSelectionViewModelTest {
     fun `UnHappy Path`() = runTest {
 
         val viewModel =
-            RouteSelectionViewModel(SavedStateHandle.createHandle(null, null), mockUnHappyDataSource)
+            RouteSelectionViewModel(mockUnHappyDataSource)
 
         val errors = viewModel.errors.first()
 

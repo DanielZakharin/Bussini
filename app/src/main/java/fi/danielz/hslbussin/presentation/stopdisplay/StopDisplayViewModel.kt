@@ -33,18 +33,29 @@ class StopDisplayViewModel @Inject constructor(private val stopDeparturesDataSou
         stopIdFlow.combine(patternIdFlow, ::Pair).flatMapConcat { (stopId, patternId) ->
             if (stopId == null || patternId == null) return@flatMapConcat flow { }
             stopDeparturesDataSource.departuresForStopAndPattern(stopId, patternId)
-        }
+        }.shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
     }
     val nextDepartureText: StateFlow<String?> by lazy {
         _departuresForStopAndPattern.map {
-            "Next bus in ${it.firstOrNull()?.displayText}"
+            it.firstOrNull()?.let { firstDeparture ->
+                "Next bus in ${firstDeparture.displayText}"
+            } ?: "No departures within 24h"
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), null)
+    }
+
+    val subSequentDeparturesHeader: StateFlow<String?> by lazy {
+        _departuresForStopAndPattern.map {
+            if (it.isNotEmpty()) "Other departures:" else null
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), null)
     }
 
     val subsequentDepartures: Flow<List<StopSingleDepartureData>> by lazy {
         _departuresForStopAndPattern.map {
             it.toMutableList().apply {
-                removeFirst()
+                // avoid NoSuchElementException
+                if (isNotEmpty()) {
+                    removeFirst()
+                }
             }
         }
     }

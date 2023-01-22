@@ -1,4 +1,4 @@
-package fi.danielz.hslbussin.recyclerview
+package fi.danielz.hslbussin.utils.recyclerview
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater

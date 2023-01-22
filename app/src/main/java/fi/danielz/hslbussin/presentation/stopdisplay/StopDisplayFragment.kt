@@ -10,16 +10,23 @@ import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import fi.danielz.hslbussin.R
 import fi.danielz.hslbussin.databinding.FragmentStopDisplayBinding
 import fi.danielz.hslbussin.databinding.StopDisplayRowBinding
 import fi.danielz.hslbussin.preferences.SharedPreferencesManager
+import fi.danielz.hslbussin.preferences.clearSavedPrefs
 import fi.danielz.hslbussin.preferences.readStopAndPattern
 import fi.danielz.hslbussin.presentation.stopdisplay.model.StopSingleDepartureData
-import fi.danielz.hslbussin.recyclerview.SimpleDataBindingRecyclerAdapter
-import fi.danielz.hslbussin.recyclerview.SimpleDataBindingRecyclerItem
+import fi.danielz.hslbussin.utils.recyclerview.SimpleDataBindingRecyclerAdapter
+import fi.danielz.hslbussin.utils.recyclerview.SimpleDataBindingRecyclerItem
+import fi.danielz.hslbussin.utils.view.setSingleClickListener
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 // FIXME move to a separate file
@@ -76,8 +83,14 @@ class StopDisplayFragment :
         return super.onCreateView(inflater, container, savedInstanceState).also {
             dataBinding.vm = vm
             dataBinding.departuresRecycler.adapter = recyclerAdapter
+            dataBinding.buttonSwitch.setSingleClickListener {
+                SharedPreferencesManager(requireActivity().getPreferences(Context.MODE_PRIVATE)).clearSavedPrefs()
+                // clear saved prefs and navigate to start of flow
+                findNavController()
+                    .navigate(StopDisplayFragmentDirections.actionStopDisplayFragmentToRouteSelectionFragment())
+            }
             viewLifecycleOwner.lifecycleScope.launch {
-                vm.departuresForStopAndPattern.collect {
+                vm.subsequentDepartures.collect {
                     it.takeIf { it.isNotEmpty() }?.let { items ->
                         recyclerAdapter.submitList(mapRecyclerItems(items))
                     }

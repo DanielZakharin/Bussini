@@ -51,7 +51,11 @@
         android:id="@+id/stopDisplayFragment"
         android:name="fi.danielz.hslbussin.presentation.stopdisplay.StopDisplayFragment"
         android:label="StopDisplayFragment"
-        tools:layout="@layout/fragment_stop_display" />
+        tools:layout="@layout/fragment_stop_display" >
+        <action
+            android:id="@+id/action_stopDisplayFragment_to_route_selection_fragment"
+            app:destination="@id/route_selection_fragment" />
+    </fragment>
 
 
 </navigation>

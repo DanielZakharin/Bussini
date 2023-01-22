@@ -31,3 +31,8 @@ fun SharedPreferencesManager.hasRequiredStopData(): Boolean {
         SELECTED_PATTERN_GTFSID_KEY
     )
 }
+
+fun SharedPreferencesManager.clearSavedPrefs() {
+    sharedPrefs.edit().remove(SELECTED_PATTERN_GTFSID_KEY).apply()
+    sharedPrefs.edit().remove(SELECTED_STOP_GTFSID_KEY).apply()
+}

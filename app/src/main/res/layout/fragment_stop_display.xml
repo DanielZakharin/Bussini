@@ -19,7 +19,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layout_boxedEdges="bottom|left|right">
+            app:layout_boxedEdges="bottom">
 
             <androidx.constraintlayout.widget.Group
                 android:id="@+id/progress_group"
@@ -32,7 +32,7 @@
                 android:id="@+id/content_group"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:constraint_referenced_ids="bus_animation, departures_recycler"
+                app:constraint_referenced_ids="button_switch, bus_animation, departures_recycler, later_departures_header, next_departure"
                 bind:isInvisible="@{vm.loading}" />
 
             <ProgressBar
@@ -56,36 +56,86 @@
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/top_guide"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintGuide_percent="0.6" />
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent="0.75" />
 
             <com.airbnb.lottie.LottieAnimationView
                 android:id="@+id/bus_animation"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="0dp"
-                app:layout_constraintBottom_toTopOf="@id/top_guide"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop"
+                app:layout_constraintBottom_toTopOf="@id/next_departure"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:lottie_autoPlay="true"
                 app:lottie_loop="true"
-                app:lottie_rawRes="@raw/lottie_bus"
-                android:adjustViewBounds="true"/>
+                app:lottie_rawRes="@raw/lottie_bus" />
 
+            <TextView
+                android:id="@+id/button_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/rounded_corners_drawable"
+                android:padding="0dp"
+                android:paddingStart="6dp"
+                android:paddingTop="3dp"
+                android:paddingEnd="6dp"
+                android:paddingBottom="3dp"
+                android:text="Switch Route"
+                android:textSize="11sp"
+                app:layout_constraintEnd_toEndOf="@id/bus_animation"
+                app:layout_constraintStart_toStartOf="@id/bus_animation"
+                app:layout_constraintTop_toTopOf="@id/bus_animation" />
+
+
+            <TextView
+                android:id="@+id/next_departure"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/rounded_corners_drawable"
+                android:paddingStart="8dp"
+                android:paddingTop="4dp"
+                android:paddingEnd="8dp"
+                android:paddingBottom="4dp"
+                android:text="@{vm.nextDepartureText}"
+                android:textColor="@color/white"
+                app:layout_constraintBottom_toBottomOf="@id/top_guide"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/later_departures_header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:text="And then in:"
+                android:textColor="@color/white"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/top_guide" />
 
             <androidx.wear.widget.WearableRecyclerView
                 android:id="@+id/departures_recycler"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:clipToPadding="false"
                 android:orientation="horizontal"
+                android:paddingStart="32dp"
+                android:paddingEnd="32dp"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/top_guide"
-                app:layout_constraintVertical_bias="0"
+                app:layout_constraintTop_toBottomOf="@id/later_departures_header"
+                app:layout_constraintVertical_bias="1"
                 tools:listitem="@layout/stop_display_row" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.wear.widget.BoxInsetLayout>

@@ -1,4 +1,4 @@
-package fi.danielz.hslbussin.databinding
+package fi.danielz.hslbussin.utils.databinding
 
 import android.view.View
 import androidx.databinding.BindingAdapter

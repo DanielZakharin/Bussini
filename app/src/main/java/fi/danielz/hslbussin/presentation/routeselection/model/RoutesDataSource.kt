@@ -6,6 +6,7 @@ import fi.danielz.hslbussin.RoutesQuery
 import fi.danielz.hslbussin.presentation.directionselection.model.DirectionData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.shareIn
 import javax.inject.Inject
 
 /**

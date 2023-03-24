@@ -34,7 +34,7 @@ fun StopSelectionScreen(
                 .fillMaxSize()
                 .background(MaterialTheme.colors.background)
         ) {
-            ErrorBanner(errorState = errorState)
+            //ErrorBanner(errorState = errorState)
             ScalingLazyColumn(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {

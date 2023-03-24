@@ -1,64 +1,127 @@
+@file:OptIn(ExperimentalAnimationApi::class)
+
 package fi.danielz.hslbussin.presentation.routeselection.compose
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DirectionsBus
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.material.CircularProgressIndicator
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.ScalingLazyColumn
-import com.apollographql.apollo3.api.Error
 import fi.danielz.hslbussin.compose.ErrorBanner
 import fi.danielz.hslbussin.compose.IconRow
 import fi.danielz.hslbussin.compose.SelectionHeaderWithLoadingIndicator
 import fi.danielz.hslbussin.presentation.routeselection.model.RouteData
 import fi.danielz.hslbussin.presentation.theme.HSLBussinTheme
 
-typealias RouteClick = (RouteData) -> Unit
+sealed interface RouteSelectionScreenUIState {
+    val routes: List<RouteData>
+    val errors: List<com.apollographql.apollo3.api.Error>
 
-@ExperimentalAnimationApi
+    fun onRouteSelectedClick(route: RouteData) {}
+
+    data class Error(
+        override val errors: List<com.apollographql.apollo3.api.Error>
+    ) : RouteSelectionScreenUIState {
+        override val routes: List<RouteData> = emptyList()
+    }
+
+    data class Success(
+        override val routes: List<RouteData>
+    ) : RouteSelectionScreenUIState {
+        override val errors: List<com.apollographql.apollo3.api.Error> = emptyList()
+
+        override fun onRouteSelectedClick(route: RouteData) {
+            // TODO
+            super.onRouteSelectedClick(route)
+        }
+    }
+
+    class Loading : RouteSelectionScreenUIState {
+        override val routes: List<RouteData> = emptyList()
+        override val errors: List<com.apollographql.apollo3.api.Error> = emptyList()
+    }
+}
+
 @Composable
 fun RouteSelectionScreen(
-    routesState: State<List<RouteData>>,
-    errorsState: State<List<Error>?>,
-    onRouteSelectedClick: RouteClick,
+    uiState: RouteSelectionScreenUIState
 ) {
     HSLBussinTheme {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colors.background)
-        ) {
-            ErrorBanner(errorState = errorsState)
-            ScalingLazyColumn(
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                // add extra item for header
-                items(routesState.value.size + 1) {
-                    if (it == 0) {
-                        SelectionHeaderWithLoadingIndicator(
-                            routesState,
-                            errorsState,
-                            "Select bus route",
-                            "Loading routes..."
-                        )
-                    } else {
-                        val adjustedIndex = it - 1
-                        IconRow(
-                            item = routesState.value[adjustedIndex],
-                            onClick = onRouteSelectedClick,
-                            imageVector = Icons.Default.DirectionsBus,
-                            text = { it.name }
-                        )
+        when (uiState) {
+            is RouteSelectionScreenUIState.Error -> {
+                // TODO show only error
+            }
+            is RouteSelectionScreenUIState.Loading -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+
+            }
+            else -> {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colors.background)
+                ) {
+                    ErrorBanner(errors = uiState.errors)
+                    ScalingLazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        // add extra item for header
+                        item {
+                            SelectionHeaderWithLoadingIndicator(
+                                loading = false, // TODO this needs to be moved above
+                                "Select bus route",
+                                "Loading routes..."
+                            )
+                        }
+                        items(uiState.routes.size) { index ->
+                            IconRow(
+                                item = uiState.routes[index],
+                                onClick = uiState::onRouteSelectedClick,
+                                imageVector = Icons.Default.DirectionsBus,
+                                text = { it.name }
+                            )
+                        }
                     }
                 }
             }
         }
     }
+}
+
+// preview
+
+private class StateProvider : PreviewParameterProvider<RouteSelectionScreenUIState> {
+    override val count: Int = 2
+    override val values: Sequence<RouteSelectionScreenUIState> = sequenceOf(
+        RouteSelectionScreenUIState.Loading(),
+        RouteSelectionScreenUIState.Success(
+            emptyList() // TODO
+        ),
+    )
+}
+
+@Preview
+@Composable
+private fun RouteSelectionScreenPreview(
+    @PreviewParameter(StateProvider::class) uiState: RouteSelectionScreenUIState
+) {
+    RouteSelectionScreen(uiState = uiState)
 }

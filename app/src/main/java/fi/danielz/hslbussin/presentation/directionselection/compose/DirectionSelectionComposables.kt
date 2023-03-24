@@ -28,8 +28,38 @@ import fi.danielz.hslbussin.compose.SelectionHeaderWithLoadingAndBackButton
 import fi.danielz.hslbussin.compose.SelectionHeaderWithLoadingIndicator
 import fi.danielz.hslbussin.presentation.directionselection.model.DirectionData
 import fi.danielz.hslbussin.presentation.routeselection.RouteSelectionViewModel
+import fi.danielz.hslbussin.presentation.routeselection.compose.RouteSelectionScreenUIState
 import fi.danielz.hslbussin.presentation.routeselection.model.RouteData
 import fi.danielz.hslbussin.presentation.theme.HSLBussinTheme
+
+sealed interface DirectionSelectionScreenUIState {
+    val routes: List<RouteData>
+    val errors: List<com.apollographql.apollo3.api.Error>
+
+    fun onRouteSelectedClick(route: RouteData) {}
+
+    data class Error(
+        override val errors: List<com.apollographql.apollo3.api.Error>
+    ) : DirectionSelectionScreenUIState {
+        override val routes: List<RouteData> = emptyList()
+    }
+
+    data class Success(
+        override val routes: List<RouteData>
+    ) : DirectionSelectionScreenUIState {
+        override val errors: List<com.apollographql.apollo3.api.Error> = emptyList()
+
+        override fun onRouteSelectedClick(route: RouteData) {
+            // TODO
+            super.onRouteSelectedClick(route)
+        }
+    }
+
+    class Loading : DirectionSelectionScreenUIState {
+        override val routes: List<RouteData> = emptyList()
+        override val errors: List<com.apollographql.apollo3.api.Error> = emptyList()
+    }
+}
 
 /**
  * Similar to route selection
@@ -38,48 +68,65 @@ import fi.danielz.hslbussin.presentation.theme.HSLBussinTheme
 @Composable
 fun DirectionSelectionScreen(
     selectedRouteId: String,
-    errorsState: State<List<Error>?>,
-    routesState: State<List<RouteData>>,
+    uiState: DirectionSelectionScreenUIState,
     onBackPressed: () -> Unit,
     onItemSelected: (routeId: String, directionId: Int) -> Unit
 ) {
     HSLBussinTheme {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colors.background)
-        ) {
-            ErrorBanner(errorState = errorsState)
-            ScalingLazyColumn(
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                val selectedRouteDirections = routesState.value.find {
-                    it.gtfsId == selectedRouteId
-                }?.directions ?: emptyList()
-                // add extra item for header
-                items(selectedRouteDirections.size + 1) {
-                    if (it == 0) {
-                        SelectionHeaderWithLoadingAndBackButton(
-                            routesState,
-                            errorsState,
-                            "Select direction",
-                            "Loading...",
-                            onBackPressed
-                        )
-                    } else {
-                        val adjustedIndex = it - 1
-                        IconRow(
-                            item = selectedRouteDirections[adjustedIndex],
-                            text = { it.name ?: "" },
-                            imageVector = Icons.Default.CompareArrows
-                        ) {
-                            it.directionId?.let { dir ->
-                                onItemSelected(selectedRouteId, dir)
+        when (uiState) {
+            is DirectionSelectionScreenUIState.Error -> {
+                // TODO ERROR
+                ErrorBanner(uiState.errors)
+            }
+            is DirectionSelectionScreenUIState.Loading -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+            is DirectionSelectionScreenUIState.Success -> {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colors.background)
+                ) {
+                    ScalingLazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        /* FIXME
+                        val selectedRouteDirections = routesState.value.find {
+                            it.gtfsId == selectedRouteId
+                        }?.directions ?: emptyList()
+                        // add extra item for header
+                        items(selectedRouteDirections.size + 1) {
+                            if (it == 0) {
+                                SelectionHeaderWithLoadingAndBackButton(
+                                    routesState,
+                                    errorsState,
+                                    "Select direction",
+                                    "Loading...",
+                                    onBackPressed
+                                )
+                            } else {
+                                val adjustedIndex = it - 1
+                                IconRow(
+                                    item = selectedRouteDirections[adjustedIndex],
+                                    text = { it.name ?: "" },
+                                    imageVector = Icons.Default.CompareArrows
+                                ) {
+                                    it.directionId?.let { dir ->
+                                        onItemSelected(selectedRouteId, dir)
+                                    }
+                                }
                             }
                         }
+                            */
                     }
                 }
             }
         }
+
     }
 }

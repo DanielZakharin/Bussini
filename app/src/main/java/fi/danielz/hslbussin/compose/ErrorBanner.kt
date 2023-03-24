@@ -15,8 +15,8 @@ import com.apollographql.apollo3.api.Error
 
 @ExperimentalAnimationApi
 @Composable
-fun ErrorBanner(errorState: State<List<Error>?>) {
-    AnimatedVisibility(visible = !errorState.value.isNullOrEmpty()) {
+fun ErrorBanner(errors: List<Error>) {
+    AnimatedVisibility(visible = errors.isNotEmpty()) {
 
         Column(modifier = Modifier.padding(4.dp)) {
             Text(text = "An error occurred, please try again later")

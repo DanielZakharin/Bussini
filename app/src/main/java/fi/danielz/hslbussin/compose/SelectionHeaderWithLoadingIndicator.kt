@@ -14,10 +14,10 @@ import androidx.wear.compose.material.CircularProgressIndicator
 import androidx.wear.compose.material.Text
 import com.apollographql.apollo3.api.Error
 
+// TODO split into header & loading indicator separately
 @Composable
-fun <T> SelectionHeaderWithLoadingIndicator(
-    itemsState: State<List<T>?>,
-    errorState: State<List<Error>?>,
+fun SelectionHeaderWithLoadingIndicator(
+    loading: Boolean,
     text: String,
     loadingText: String
 ) {
@@ -36,7 +36,6 @@ fun <T> SelectionHeaderWithLoadingIndicator(
             .padding(8.dp)
     ) {
         // simple loading indicator
-        val loading = itemsState.value.isNullOrEmpty() && errorState.value.isNullOrEmpty()
         val displayText = if (loading) loadingText else text
         Row {
             Text(text = displayText, textAlign = TextAlign.Center)

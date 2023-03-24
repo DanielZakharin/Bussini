@@ -37,7 +37,6 @@ class RouteSelectionFragment : Fragment() {
         }
     }
 
-    @OptIn(ExperimentalAnimationApi::class)
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -45,18 +44,16 @@ class RouteSelectionFragment : Fragment() {
     ): View {
         return ComposeView(requireContext()).apply {
             setContent {
-                val routesState = vm.routes.collectAsState(initial = emptyList())
-                val errorsState = vm.errors.collectAsState(initial = null)
+                val uiState = vm.routeSelectionUIState.collectAsState()
                 RouteSelectionScreen(
-                    routesState,
-                    errorsState
-                ) {
+                    uiState.value
+                ) /*{
                     this@RouteSelectionFragment.findNavController().navigate(
                         RouteSelectionFragmentDirections.toDirectionSelection(
                             it.gtfsId
                         )
                     )
-                }
+                }*/
             }
         }
     }

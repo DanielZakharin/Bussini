@@ -30,8 +30,6 @@ sealed interface RouteSelectionScreenUIState {
     val routes: List<RouteData>
     val errors: List<com.apollographql.apollo3.api.Error>
 
-    fun onRouteSelectedClick(route: RouteData) {}
-
     data class Error(
         override val errors: List<com.apollographql.apollo3.api.Error>
     ) : RouteSelectionScreenUIState {
@@ -42,11 +40,6 @@ sealed interface RouteSelectionScreenUIState {
         override val routes: List<RouteData>
     ) : RouteSelectionScreenUIState {
         override val errors: List<com.apollographql.apollo3.api.Error> = emptyList()
-
-        override fun onRouteSelectedClick(route: RouteData) {
-            // TODO
-            super.onRouteSelectedClick(route)
-        }
     }
 
     class Loading : RouteSelectionScreenUIState {
@@ -57,7 +50,8 @@ sealed interface RouteSelectionScreenUIState {
 
 @Composable
 fun RouteSelectionScreen(
-    uiState: RouteSelectionScreenUIState
+    uiState: RouteSelectionScreenUIState,
+    onRouteSelectedClick: (RouteData) -> Unit = {}
 ) {
     HSLBussinTheme {
         when (uiState) {
@@ -94,7 +88,7 @@ fun RouteSelectionScreen(
                         items(uiState.routes.size) { index ->
                             IconRow(
                                 item = uiState.routes[index],
-                                onClick = uiState::onRouteSelectedClick,
+                                onClick = onRouteSelectedClick,
                                 imageVector = Icons.Default.DirectionsBus,
                                 text = { it.name }
                             )

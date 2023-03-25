@@ -47,13 +47,13 @@ class RouteSelectionFragment : Fragment() {
                 val uiState = vm.routeSelectionUIState.collectAsState()
                 RouteSelectionScreen(
                     uiState.value
-                ) /*{
+                ) {
                     this@RouteSelectionFragment.findNavController().navigate(
                         RouteSelectionFragmentDirections.toDirectionSelection(
                             it.gtfsId
                         )
                     )
-                }*/
+                }
             }
         }
     }

@@ -11,11 +11,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import fi.danielz.hslbussin.R
@@ -44,7 +43,7 @@ class RouteSelectionFragment : Fragment() {
     ): View {
         return ComposeView(requireContext()).apply {
             setContent {
-                val uiState = vm.routeSelectionUIState.collectAsState()
+                val uiState = vm.routeSelectionUIState.collectAsStateWithLifecycle()
                 RouteSelectionScreen(
                     uiState.value
                 ) {

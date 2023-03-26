@@ -3,10 +3,10 @@ package fi.danielz.hslbussin.presentation.routeselection.model
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.Error
 import fi.danielz.hslbussin.RoutesQuery
+import fi.danielz.hslbussin.di.AppCoroutineScope
 import fi.danielz.hslbussin.presentation.directionselection.model.DirectionData
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 /**
@@ -41,21 +41,36 @@ interface RoutesDataSource {
  * Network datasource that conforms to [RoutesDataSource]
  * Fetches routes from digitransit api
  */
-class RoutesNetworkDataSource @Inject constructor(private val apolloClient: ApolloClient) :
+class RoutesNetworkDataSource @Inject constructor(
+    private val apolloClient: ApolloClient,
+    @AppCoroutineScope appCoroutineScope: CoroutineScope
+    ) :
     RoutesDataSource {
     private val clientResult by lazy {
-        apolloClient.query(RoutesQuery()).toFlow()
+        flow {
+            emit(
+                apolloClient.query(RoutesQuery()).execute()
+            )
+        }
     }
     override val routes: Flow<List<RouteData>> by lazy {
         clientResult.mapNotNull {
             it.data?.routes?.filterNotNull()?.map {
                 RoutesQueryData(it)
             }
-        }
+        }.shareIn(
+            scope = appCoroutineScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            replay = 1
+        )
     }
     override val errors: Flow<List<Error>> by lazy {
         clientResult.mapNotNull {
             it.errors
-        }
+        }.shareIn(
+            scope = appCoroutineScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            replay = 1
+        )
     }
 }

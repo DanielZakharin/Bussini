@@ -58,19 +58,19 @@ class RoutesNetworkDataSource @Inject constructor(
             it.data?.routes?.filterNotNull()?.map {
                 RoutesQueryData(it)
             }
-        }.shareIn(
+        }.stateIn(
             scope = appCoroutineScope,
             started = SharingStarted.WhileSubscribed(5000),
-            replay = 1
+            initialValue = emptyList()
         )
     }
     override val errors: Flow<List<Error>> by lazy {
         clientResult.mapNotNull {
             it.errors
-        }.shareIn(
+        }.stateIn(
             scope = appCoroutineScope,
             started = SharingStarted.WhileSubscribed(5000),
-            replay = 1
+            initialValue = emptyList()
         )
     }
 }

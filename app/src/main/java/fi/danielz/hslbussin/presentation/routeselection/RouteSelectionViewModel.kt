@@ -16,16 +16,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RouteSelectionViewModel @Inject constructor(
-    private val dataSource: RoutesDataSource
+    dataSource: RoutesDataSource
 ) : ViewModel() {
-    private val routes by lazy {
-        dataSource.routes
-    }
-    private val errors by lazy {
-        dataSource.errors
-    }
-    val routeSelectionUIState by lazy {
-        routes.combine(errors) { routeData: List<RouteData>, errors: List<Error> ->
+    private val routes = dataSource.routes
+    private val errors = dataSource.errors
+
+    val routeSelectionUIState =
+        combine(routes, errors) { routeData, errors ->
             when {
                 routeData.isNotEmpty() -> RouteSelectionScreenUIState.Success(
                     routes = routeData
@@ -35,12 +32,12 @@ class RouteSelectionViewModel @Inject constructor(
                 )
                 else -> RouteSelectionScreenUIState.Loading()
             }
-        }.stateIn(
-            scope = viewModelScope,
-            initialValue = RouteSelectionScreenUIState.Loading(),
-            started = WhileSubscribed(5000)
-        )
-    }
+        }
+            .stateIn(
+                scope = viewModelScope,
+                initialValue = RouteSelectionScreenUIState.Loading(),
+                started = WhileSubscribed(5000)
+            )
 
     val directionSelectionUIState by lazy {
         routes.combine(errors) { routeData: List<RouteData>, errors: List<Error> ->

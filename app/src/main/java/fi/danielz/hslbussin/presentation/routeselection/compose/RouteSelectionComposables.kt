@@ -85,6 +85,7 @@ fun RouteSelectionScreen(
                                 "Loading routes..."
                             )
                         }
+                        // row + divider
                         items(uiState.routes.size) { index ->
                             IconRow(
                                 item = uiState.routes[index],

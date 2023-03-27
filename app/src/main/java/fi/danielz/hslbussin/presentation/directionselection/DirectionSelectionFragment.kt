@@ -38,7 +38,7 @@ class DirectionSelectionFragment : Fragment() {
     ): View {
         return ComposeView(requireContext()).apply {
             setContent {
-                val uiState = vm.directionSelectionUIState.collectAsState()
+                val uiState = vm.routeSelectionUIState.collectAsState()
                 DirectionSelectionScreen(navargs.selectedRouteId, uiState.value, {
                     findNavController().popBackStack()
                 }) { routeId, directionId ->

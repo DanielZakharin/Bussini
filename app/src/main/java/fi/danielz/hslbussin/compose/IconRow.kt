@@ -1,18 +1,17 @@
 package fi.danielz.hslbussin.compose
 
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DirectionsBus
+import androidx.compose.material3.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.material.Card
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.Text
 
@@ -26,9 +25,13 @@ fun <T> IconRow(
     imageVector: ImageVector,
     onClick: (T) -> Unit
 ) {
-    Card(onClick = {
-        onClick(item)
-    }) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .clickable {
+                onClick(item)
+            }) {
         Row {
             Icon(imageVector = imageVector, contentDescription = "")
             Spacer(modifier = Modifier.width(8.dp))
@@ -40,4 +43,15 @@ fun <T> IconRow(
             )
         }
     }
+    Divider()
+}
+
+@Preview
+@Composable
+fun PreviewIconRow() {
+    IconRow(
+        item = "Preview",
+        text = { it },
+        imageVector = Icons.Default.DirectionsBus,
+        onClick = {})
 }

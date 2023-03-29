@@ -15,6 +15,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import fi.danielz.hslbussin.preferences.SharedPreferencesManager
 import fi.danielz.hslbussin.preferences.writeStop
 import fi.danielz.hslbussin.presentation.stopselection.compose.StopSelectionScreen
+import fi.danielz.hslbussin.presentation.stopselection.compose.StopSelectionScreenUIState
 
 /**
  * Fragment for displaying route stops
@@ -26,6 +27,12 @@ class StopSelectionFragment : Fragment() {
 
     private val args by navArgs<StopSelectionFragmentArgs>()
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // 'init' the vm
+        vm.setPatternGtfsId("${args.routeId}:${args.directionId}:01")
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -33,12 +40,14 @@ class StopSelectionFragment : Fragment() {
     ): View {
         return ComposeView(requireContext()).apply {
             setContent {
-                val patternId = "${args.routeId}:${args.directionId}:01"
-                val stopState = vm.stops(patternId).collectAsState(initial = emptyList())
-                val errorState = vm.errors.collectAsState(initial = null)
-                StopSelectionScreen(stopsState = stopState, errorState = errorState, {
-                    findNavController().popBackStack()
-                }) { stopId ->
+                val uiState =
+                    vm.uiState.collectAsState(initial = StopSelectionScreenUIState.Loading())
+                StopSelectionScreen(
+                    uiState = uiState.value,
+                    onBackPressed = {
+                        findNavController().popBackStack()
+                    }
+                ) { stopId ->
                     SharedPreferencesManager(
                         requireActivity().getPreferences(Context.MODE_PRIVATE)
                     ).writeStop(stopId)

@@ -17,12 +17,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material.CircularProgressIndicator
 import androidx.wear.compose.material.MaterialTheme
-import androidx.wear.compose.material.ScalingLazyColumn
 import fi.danielz.hslbussin.compose.ErrorBanner
 import fi.danielz.hslbussin.compose.IconRow
-import fi.danielz.hslbussin.compose.SelectionHeaderWithLoadingIndicator
+import fi.danielz.hslbussin.compose.SelectionHeader
 import fi.danielz.hslbussin.presentation.routeselection.model.RouteData
 import fi.danielz.hslbussin.presentation.theme.HSLBussinTheme
 
@@ -79,11 +79,7 @@ fun RouteSelectionScreen(
                     ) {
                         // add extra item for header
                         item {
-                            SelectionHeaderWithLoadingIndicator(
-                                loading = false, // TODO this needs to be moved above
-                                "Select bus route",
-                                "Loading routes..."
-                            )
+                            SelectionHeader("Select bus route")
                         }
                         // row + divider
                         items(uiState.routes.size) { index ->

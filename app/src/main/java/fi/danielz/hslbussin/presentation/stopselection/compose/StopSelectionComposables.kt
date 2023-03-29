@@ -1,30 +1,54 @@
 package fi.danielz.hslbussin.presentation.stopselection.compose
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AirlineStops
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.wear.compose.material.CircularProgressIndicator
 import androidx.wear.compose.material.MaterialTheme
-import androidx.wear.compose.material.ScalingLazyColumn
-import com.apollographql.apollo3.api.Error
-import fi.danielz.hslbussin.compose.ErrorBanner
+import com.apollographql.apollo3.api.Error as ApolloError
 import fi.danielz.hslbussin.compose.IconRow
-import fi.danielz.hslbussin.compose.SelectionHeaderWithLoadingAndBackButton
+import fi.danielz.hslbussin.compose.SelectionHeaderWithBackButton
 import fi.danielz.hslbussin.presentation.stopselection.model.StopData
 import fi.danielz.hslbussin.presentation.theme.HSLBussinTheme
 
-@OptIn(ExperimentalAnimationApi::class)
+sealed interface StopSelectionScreenUIState {
+    val stops: List<StopData>
+    val errors: List<ApolloError>
+    val title: String
+
+    data class Success(
+        override val stops: List<StopData>,
+        override val title: String
+    ): StopSelectionScreenUIState {
+        override val errors: List<ApolloError> = emptyList()
+    }
+
+    data class Error(
+        override val errors: List<ApolloError>
+    ): StopSelectionScreenUIState {
+        override val title: String = ""
+        override val stops: List<StopData> = emptyList()
+    }
+
+    class Loading: StopSelectionScreenUIState {
+        override val stops: List<StopData> = emptyList()
+        override val errors: List<ApolloError> = emptyList()
+        override val title: String = ""
+    }
+}
+
 @Composable
 fun StopSelectionScreen(
-    stopsState: State<List<StopData>>,
-    errorState: State<List<Error>?>,
+    uiState: StopSelectionScreenUIState,
     onBackPressed: () -> Unit,
     onStopSelectedPressed: (stopGtfsId: String) -> Unit,
 ) {
@@ -34,32 +58,45 @@ fun StopSelectionScreen(
                 .fillMaxSize()
                 .background(MaterialTheme.colors.background)
         ) {
-            //ErrorBanner(errorState = errorState)
-            ScalingLazyColumn(
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                // add extra item for header
-                items(stopsState.value.size + 1) {
-                    if (it == 0) {
-                        SelectionHeaderWithLoadingAndBackButton(
-                            stopsState,
-                            errorState,
-                            "Select stop",
-                            "Loading stops...",
-                            onBackPressed
-                        )
-                    } else {
-                        val adjustedIndex = it - 1
-                        val stop = stopsState.value[adjustedIndex]
-                        IconRow(
-                            item = stop,
-                            onClick = { onStopSelectedPressed(stop.gtfsId) },
-                            text = { it.name },
-                            imageVector = Icons.Default.AirlineStops
-                        )
+            when (uiState) {
+                is StopSelectionScreenUIState.Success -> {
+                    ScalingLazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        // add extra item for header
+                        items(uiState.stops.size + 1) {
+                            if (it == 0) {
+                                SelectionHeaderWithBackButton(
+                                    uiState.title,
+                                    onBackPressed
+                                )
+                            } else {
+                                val adjustedIndex = it - 1
+                                val stop = uiState.stops[adjustedIndex]
+                                IconRow(
+                                    item = stop,
+                                    onClick = { onStopSelectedPressed(stop.gtfsId) },
+                                    text = { it.name },
+                                    imageVector = Icons.Default.AirlineStops
+                                )
+                            }
+                        }
+                    }
+                }
+                is StopSelectionScreenUIState.Error -> {
+                    // TODO
+                    //ErrorBanner(errorState = errorState)
+                }
+                is StopSelectionScreenUIState.Loading -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
                     }
                 }
             }
+
         }
     }
 }

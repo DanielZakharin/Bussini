@@ -17,6 +17,7 @@ import androidx.wear.compose.material.CircularProgressIndicator
 import androidx.wear.compose.material.MaterialTheme
 import fi.danielz.hslbussin.compose.ErrorBanner
 import fi.danielz.hslbussin.compose.IconRow
+import fi.danielz.hslbussin.compose.SelectionHeaderWithBackButton
 import fi.danielz.hslbussin.presentation.routeselection.compose.RouteSelectionScreenUIState
 import fi.danielz.hslbussin.presentation.theme.HSLBussinTheme
 
@@ -60,14 +61,10 @@ fun DirectionSelectionScreen(
                         }?.directions ?: emptyList()
                         // add extra item for header
                         item {
-                            /* FIXME
-                             SelectionHeaderWithLoadingAndBackButton(
-                                routesState,
-                                errorsState,
+                             SelectionHeaderWithBackButton(
                                 "Select direction",
-                                "Loading...",
                                 onBackPressed
-                            )*/
+                            )
                         }
                         items(selectedRouteDirections.size) { index ->
                             IconRow(

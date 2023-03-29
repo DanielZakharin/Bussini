@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.CircularProgressIndicator
@@ -20,31 +21,25 @@ import androidx.wear.compose.material.Text
 import com.apollographql.apollo3.api.Error
 import fi.danielz.hslbussin.presentation.routeselection.model.RouteData
 
+
 @Composable
-fun <T>SelectionHeaderWithLoadingAndBackButton (
-    itemsState: State<List<T>?>,
-    errorState: State<List<Error>?>,
+fun SelectionHeader(
+    text: String
+) {
+    Text(text = text, textAlign = TextAlign.Start)
+}
+
+
+@Composable
+fun SelectionHeaderWithBackButton(
     text: String,
-    loadingText: String,
     onBackPressed: () -> Unit
 ) {
     Box(
         Modifier
             .fillMaxWidth()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        Color.DarkGray,
-                        Color.Gray
-                    )
-                ),
-                shape = RoundedCornerShape(8.dp)
-            )
             .padding(8.dp)
     ) {
-        // simple loading indicator
-        val loading = itemsState.value.isNullOrEmpty() && errorState.value.isNullOrEmpty()
-        val displayText = if (loading) loadingText else text
         Row(
             modifier = Modifier.height(IntrinsicSize.Min),
             verticalAlignment = Alignment.CenterVertically
@@ -65,11 +60,13 @@ fun <T>SelectionHeaderWithLoadingAndBackButton (
                 )
             }
             Spacer(modifier = Modifier.width(8.dp))
-            Text(text = displayText, textAlign = TextAlign.Start)
-            if (loading) {
-                Spacer(modifier = Modifier.weight(1f))
-                CircularProgressIndicator()
-            }
+            SelectionHeader(text = text)
         }
     }
+}
+
+@Preview
+@Composable
+fun PreviewSelectionHeaderWithBackButton() {
+    SelectionHeaderWithBackButton("This is header", {})
 }

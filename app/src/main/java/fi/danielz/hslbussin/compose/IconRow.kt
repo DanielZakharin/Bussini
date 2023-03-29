@@ -25,10 +25,14 @@ fun <T> IconRow(
     imageVector: ImageVector,
     onClick: (T) -> Unit
 ) {
-    Row(
+    Column(
         Modifier
             .fillMaxWidth()
-            .padding(8.dp)
+            .padding(
+                top = 8.dp,
+                start = 8.dp,
+                end = 8.dp
+            )
             .clickable {
                 onClick(item)
             }) {
@@ -42,8 +46,9 @@ fun <T> IconRow(
                 overflow = TextOverflow.Ellipsis
             )
         }
+        Spacer(modifier = Modifier.height(4.dp))
+        Divider()
     }
-    Divider()
 }
 
 @Preview

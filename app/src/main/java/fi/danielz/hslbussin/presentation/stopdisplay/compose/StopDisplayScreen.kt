@@ -3,16 +3,22 @@ package fi.danielz.hslbussin.presentation.stopdisplay.compose
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Recycling
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.wear.compose.foundation.lazy.AutoCenteringParams
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.wear.compose.foundation.lazy.ScalingLazyListAnchorType
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.MaterialTheme
@@ -69,39 +75,58 @@ fun StopDisplayScreen(
                         .fillMaxSize()
                         .background(MaterialTheme.colors.background)
                 ) {
-                    ScalingLazyColumn(content = {
-                        // Bus route number and switch button
-                        item {
-                            Row(modifier = Modifier.padding(2.dp)) {
-                                Button(onClick = onSwitchRoutePressed) {
-                                    Icon(imageVector = Icons.Default.Settings, contentDescription = "Switch route")
-                                }
-                                Text(text = uiState.routeTitle(), fontSize = 15.sp, color = Color.White)
-                            }
-                        }
-                        // first departure and header
-                        item {
-                            SelectionHeader(text = "Next departure in:")
-                        }
-                        item {
-                            uiState.departures.firstOrNull()?.let { departure ->
-                                StopDisplayDepartureItem(item = departure)
-                            }
-                        }
-                        // subsequent departures
-                        if (uiState.departures.size > 1) {
+                    ScalingLazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        autoCentering = AutoCenteringParams(itemIndex = 2),
+                        content = {
+                            // Bus route number and switch button
                             item {
-                                SelectionHeader(text = "And then in:")
+                                Row(
+                                    modifier = Modifier
+                                        .padding(2.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+
+                                    ) {
+                                    Button(
+                                        onClick = onSwitchRoutePressed,
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.SwapHoriz,
+                                            contentDescription = "Switch route"
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = uiState.routeTitle(),
+                                        fontSize = 20.sp,
+                                        color = Color.White
+                                    )
+                                }
                             }
-                        }
-                        items(uiState.departures.size) { index ->
-                            // skip first item, added previously
-                            if (index != 0) {
-                                val departure = uiState.departures[index]
-                                StopDisplayDepartureItem(item = departure)
+                            // first departure and header
+                            item {
+                                SelectionHeader(text = "Next departure in:")
                             }
-                        }
-                    })
+                            item {
+                                uiState.departures.firstOrNull()?.let { departure ->
+                                    StopDisplayDepartureItem(item = departure)
+                                }
+                            }
+                            // subsequent departures
+                            if (uiState.departures.size > 1) {
+                                item {
+                                    SelectionHeader(text = "And then in:")
+                                }
+                            }
+                            items(uiState.departures.size) { index ->
+                                // skip first item, added previously
+                                if (index != 0) {
+                                    val departure = uiState.departures[index]
+                                    StopDisplayDepartureItem(item = departure)
+                                }
+                            }
+                        })
                 }
             }
         }

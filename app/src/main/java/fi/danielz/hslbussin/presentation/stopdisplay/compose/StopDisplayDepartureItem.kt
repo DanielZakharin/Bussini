@@ -18,7 +18,7 @@ fun StopDisplayDepartureItem(
     item: StopSingleDepartureData
 ) {
     Row(modifier = Modifier
-        .fillMaxWidth()
+        //.fillMaxWidth()
         .padding(8.dp)) {
         Text(text = item.displayText, color = Color.White, textAlign = TextAlign.Center)
     }

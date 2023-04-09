@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -58,7 +59,7 @@ sealed interface StopDisplayScreenUIState {
 @Composable
 fun StopDisplayScreen(
     uiState: StopDisplayScreenUIState,
-    onBackPressed: () -> Unit,
+    ticker: State<Long>,
     onSwitchRoutePressed: () -> Unit,
 ) {
     HSLBussinTheme {
@@ -110,7 +111,7 @@ fun StopDisplayScreen(
                             }
                             item {
                                 uiState.departures.firstOrNull()?.let { departure ->
-                                    StopDisplayDepartureItem(item = departure)
+                                    StopDisplayDepartureItem(item = departure, ticker)
                                 }
                             }
                             // subsequent departures
@@ -123,7 +124,7 @@ fun StopDisplayScreen(
                                 // skip first item, added previously
                                 if (index != 0) {
                                     val departure = uiState.departures[index]
-                                    StopDisplayDepartureItem(item = departure)
+                                    StopDisplayDepartureItem(item = departure, ticker)
                                 }
                             }
                         })

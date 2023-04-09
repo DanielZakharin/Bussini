@@ -21,30 +21,32 @@ data class StopDisplayData(
 }
 
 interface StopSingleDepartureData {
-    val timeUntilDeparture: Long
-    val displayText: String
+    val timeOfDeparture: Long
+    fun timeUntilDeparture(fromTimePoint: Long): Long
+    fun displayText(fromTimePoint: Long): String
 }
 
-class StopSingleDepartureQueryData(queryDataItem: StopQuery.StopTimesForPattern) :
+class StopSingleDepartureQueryData(private val queryDataItem: StopQuery.StopTimesForPattern) :
     StopSingleDepartureData {
+
+    override val timeOfDeparture: Long
+        get() = queryDataItem.let {
+            // apollo types are all wonky? query types are all wrong...
+            val serviceDay = (it.serviceDay as? Int)?.toLong() ?: return@let -1L
+            val departureOffset: Long? =
+                if (it.realtime == true) it.realtimeDeparture?.toLong() else it.scheduledDeparture?.toLong()
+            departureOffset ?: return@let -1L
+            ((serviceDay + departureOffset) * 1000)
+        }
 
     /**
      * Departure time in millis, or -1L if parsing fails
      */
-    override val timeUntilDeparture: Long = queryDataItem.let {
-        // apollo types are all wonky? query types are all wrong...
-        val serviceDay = (it.serviceDay as? Int)?.toLong() ?: return@let -1L
-        val departureOffset: Long? =
-            if (it.realtime == true) it.realtimeDeparture?.toLong() else it.scheduledDeparture?.toLong()
-        departureOffset ?: return@let -1L
-        ((serviceDay + departureOffset) * 1000) - System.currentTimeMillis() // convert to millis
-    }
+    override fun timeUntilDeparture(fromTimePoint: Long): Long =
+        timeOfDeparture - fromTimePoint
 
-    override val displayText: String = timeUntilDeparture.takeIf {
-        it != -1L
-    }?.let {
-        millisToHoursMinutes(it)
-    } ?: "unknown"
+    override fun displayText(fromTimePoint: Long): String =
+        millisToHoursMinutes(timeUntilDeparture(fromTimePoint))
 
     companion object {
         // internal companion object to be able to be testable

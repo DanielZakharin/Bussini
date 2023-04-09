@@ -73,7 +73,6 @@ fun RouteSelectionScreen(
                         .fillMaxSize()
                         .background(MaterialTheme.colors.background)
                 ) {
-                    ErrorBanner(errors = uiState.errors)
                     ScalingLazyColumn(
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {

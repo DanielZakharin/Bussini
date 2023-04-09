@@ -4,13 +4,21 @@ import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Error
 import fi.danielz.hslbussin.StopQuery
+import fi.danielz.hslbussin.di.AppCoroutineScope
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
 import timber.log.Timber
-import java.text.SimpleDateFormat
 import java.time.Duration
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
-import kotlin.math.floor
+
+data class StopDisplayData(
+    val routeName: String,
+    val departures: List<StopSingleDepartureData>
+) {
+    companion object {
+        val empty = StopDisplayData("", emptyList())
+    }
+}
 
 interface StopSingleDepartureData {
     val timeUntilDeparture: Long
@@ -55,41 +63,57 @@ class StopSingleDepartureQueryData(queryDataItem: StopQuery.StopTimesForPattern)
 }
 
 interface StopDeparturesDataSource {
-    fun departuresForStopAndPattern(
+    fun stopDataForPattern(
         stopId: String,
         patternId: String
-    ): Flow<List<StopSingleDepartureData>>
+    ): Flow<StopDisplayData>
 
-    val errors: Flow<List<com.apollographql.apollo3.api.Error>?>
+    val errors: Flow<List<Error>>
 }
 
-class StopDeparturesNetworkDataSource @Inject constructor(private val apolloClient: ApolloClient) :
+class StopDeparturesNetworkDataSource @Inject constructor(
+    private val apolloClient: ApolloClient,
+    @AppCoroutineScope appCoroutineScope: CoroutineScope
+) :
     StopDeparturesDataSource {
 
-    private val stopIdFlow = MutableStateFlow<String?>(null)
-    private val patternIdFlow = MutableStateFlow<String?>(null)
-    private val stopDeparturesFlow: Flow<ApolloResponse<StopQuery.Data>> =
-        stopIdFlow.combine(patternIdFlow, ::Pair).flatMapConcat { (stopId, patternId) ->
-            if (stopId == null || patternId == null) return@flatMapConcat flow { }
+    private val stopIdFlow = MutableStateFlow("")
+    private val patternIdFlow = MutableStateFlow("")
+    private val departuresResult: Flow<ApolloResponse<StopQuery.Data>> by lazy {
+        stopIdFlow.combine(patternIdFlow) { stopId, patternId ->
             val res = apolloClient.query(StopQuery(stopId, patternId)).execute()
             Timber.d("res!! ${res.data}")
-            apolloClient.query(StopQuery(stopId, patternId)).toFlow()
-        }
-
-    override fun departuresForStopAndPattern(
-        stopId: String,
-        patternId: String
-    ): Flow<List<StopSingleDepartureData>> {
-        stopIdFlow.value = stopId
-        patternIdFlow.value = patternId
-        return stopDeparturesFlow.mapNotNull {
-            it.data?.stop?.stopTimesForPattern?.mapNotNull { stopTime ->
-                stopTime?.let(::StopSingleDepartureQueryData)
-            }
+            apolloClient.query(StopQuery(stopId, patternId)).execute()
         }
     }
+    private val stopDataFlow: Flow<StopDisplayData> by lazy {
+        departuresResult.map {
+            StopDisplayData(
+                routeName = "FIXME" ?: "",
+                departures = it.data?.stop?.stopTimesForPattern?.mapNotNull { stopTime ->
+                    stopTime?.let(::StopSingleDepartureQueryData)
+                } ?: emptyList())
+        }.stateIn(
+            started = SharingStarted.WhileSubscribed(5000),
+            scope = appCoroutineScope,
+            initialValue = StopDisplayData.empty
+        )
+    }
 
-    override val errors: Flow<List<Error>?> by lazy {
-        stopDeparturesFlow.map { it.errors }
+    override fun stopDataForPattern(
+        stopId: String,
+        patternId: String
+    ): Flow<StopDisplayData> {
+        stopIdFlow.value = stopId
+        patternIdFlow.value = patternId
+        return stopDataFlow
+    }
+
+    override val errors: Flow<List<Error>> by lazy {
+        departuresResult.mapNotNull { it.errors }.stateIn(
+            scope = appCoroutineScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
     }
 }

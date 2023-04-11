@@ -79,8 +79,8 @@ class StopDeparturesNetworkDataSource @Inject constructor(
 ) :
     StopDeparturesDataSource {
 
-    private val stopIdFlow = MutableStateFlow("")
-    private val patternIdFlow = MutableStateFlow("")
+    private val stopIdFlow = MutableSharedFlow<String>(1)
+    private val patternIdFlow = MutableSharedFlow<String>(1)
     private val departuresResult: Flow<ApolloResponse<StopQuery.Data>> by lazy {
         stopIdFlow.combine(patternIdFlow) { stopId, patternId ->
             val res = apolloClient.query(StopQuery(stopId, patternId)).execute()
@@ -106,8 +106,8 @@ class StopDeparturesNetworkDataSource @Inject constructor(
         stopId: String,
         patternId: String
     ): Flow<StopDisplayData> {
-        stopIdFlow.value = stopId
-        patternIdFlow.value = patternId
+        stopIdFlow.tryEmit(stopId)
+        patternIdFlow.tryEmit(patternId)
         return stopDataFlow
     }
 

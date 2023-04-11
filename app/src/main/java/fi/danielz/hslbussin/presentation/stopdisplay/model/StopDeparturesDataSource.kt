@@ -12,11 +12,10 @@ import java.time.Duration
 import javax.inject.Inject
 
 data class StopDisplayData(
-    val routeName: String,
     val departures: List<StopSingleDepartureData>
 ) {
     companion object {
-        val empty = StopDisplayData("", emptyList())
+        val empty = StopDisplayData(emptyList())
     }
 }
 
@@ -91,7 +90,6 @@ class StopDeparturesNetworkDataSource @Inject constructor(
     private val stopDataFlow: Flow<StopDisplayData> by lazy {
         departuresResult.map {
             StopDisplayData(
-                routeName = "FIXME" ?: "",
                 departures = it.data?.stop?.stopTimesForPattern?.mapNotNull { stopTime ->
                     stopTime?.let(::StopSingleDepartureQueryData)
                 } ?: emptyList())

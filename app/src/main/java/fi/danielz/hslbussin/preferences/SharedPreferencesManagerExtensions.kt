@@ -2,6 +2,13 @@ package fi.danielz.hslbussin.preferences
 
 
 /**
+ * Convenience function to write route name to prefs
+ */
+fun SharedPreferencesManager.writeRoute(routeName: String) {
+    writeString(SELECTED_ROUTE_ID_KEY, routeName)
+}
+
+/**
  * Convenience function to write route pattern to prefs
  */
 fun SharedPreferencesManager.writePattern(patternId: String) {
@@ -21,6 +28,8 @@ fun SharedPreferencesManager.writeStop(stopGtfsId: String) {
 fun SharedPreferencesManager.readStopAndPattern(): Pair<String?, String?> {
     return readString(SELECTED_STOP_GTFSID_KEY) to readString(SELECTED_PATTERN_GTFSID_KEY)
 }
+
+fun SharedPreferencesManager.readStopName(): String = readString(SELECTED_ROUTE_ID_KEY) ?: ""
 
 /**
  * Convenience function to check if a route + stop has previously been selected

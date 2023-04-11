@@ -15,7 +15,7 @@ import org.junit.Test
 
 val mockRoute = object : RouteData {
     override val gtfsId: String = "test"
-    override val name: String = "test route"
+    override val fullName: String = "test route"
     override val directions: List<DirectionData>
         get() = emptyList()
 }

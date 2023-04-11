@@ -20,7 +20,6 @@ import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material.CircularProgressIndicator
 import androidx.wear.compose.material.MaterialTheme
-import fi.danielz.hslbussin.compose.ErrorBanner
 import fi.danielz.hslbussin.compose.IconRow
 import fi.danielz.hslbussin.compose.SelectionHeader
 import fi.danielz.hslbussin.presentation.routeselection.model.RouteData
@@ -86,7 +85,7 @@ fun RouteSelectionScreen(
                                 item = uiState.routes[index],
                                 onClick = onRouteSelectedClick,
                                 imageVector = Icons.Default.DirectionsBus,
-                                text = { it.name }
+                                text = { it.fullName }
                             )
                         }
                     }

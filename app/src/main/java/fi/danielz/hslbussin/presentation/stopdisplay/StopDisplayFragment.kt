@@ -16,6 +16,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import fi.danielz.hslbussin.preferences.SharedPreferencesManager
 import fi.danielz.hslbussin.preferences.clearSavedPrefs
 import fi.danielz.hslbussin.preferences.readStopAndPattern
+import fi.danielz.hslbussin.preferences.readStopName
 import fi.danielz.hslbussin.presentation.stopdisplay.compose.StopDisplayScreen
 import fi.danielz.hslbussin.presentation.stopdisplay.compose.StopDisplayScreenUIState
 import kotlinx.coroutines.flow.combine
@@ -41,7 +42,7 @@ class StopDisplayFragment : Fragment() {
         super.onCreate(savedInstanceState)
         val (stopId, patternId) = prefs.readStopAndPattern()
 
-        vm.init(requireNotNull(stopId), requireNotNull(patternId))
+        vm.init(requireNotNull(stopId), requireNotNull(patternId), prefs.readStopName())
     }
 
     override fun onCreateView(

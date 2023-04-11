@@ -20,11 +20,16 @@ import dagger.hilt.android.AndroidEntryPoint
 import fi.danielz.hslbussin.R
 import fi.danielz.hslbussin.preferences.SharedPreferencesManager
 import fi.danielz.hslbussin.preferences.hasRequiredStopData
+import fi.danielz.hslbussin.preferences.writeRoute
 import fi.danielz.hslbussin.presentation.routeselection.compose.RouteSelectionScreen
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class RouteSelectionFragment : Fragment() {
     private val vm: RouteSelectionViewModel by hiltNavGraphViewModels(R.id.main_nav_graph)
+
+    @Inject
+    lateinit var prefs: SharedPreferencesManager
 
     override fun onResume() {
         super.onResume()
@@ -47,6 +52,8 @@ class RouteSelectionFragment : Fragment() {
                 RouteSelectionScreen(
                     uiState.value
                 ) {
+                    // save route name for display
+                    prefs.writeRoute(it.shortName)
                     this@RouteSelectionFragment.findNavController().navigate(
                         RouteSelectionFragmentDirections.toDirectionSelection(
                             it.gtfsId

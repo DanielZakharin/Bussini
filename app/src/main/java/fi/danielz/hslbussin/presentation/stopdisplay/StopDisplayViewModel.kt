@@ -23,12 +23,15 @@ class StopDisplayViewModel @Inject constructor(
     AndroidViewModel(application) {
 
     private var initialized: Boolean = false
+    private lateinit var routenName: String
     fun init(
         stopId: String,
-        patternId: String
+        patternId: String,
+        routenName: String
     ) {
         stopIdFlow.value = stopId
         patternIdFlow.value = patternId
+        this.routenName = routenName
         initialized = true
 
         viewModelScope.launch {
@@ -90,7 +93,7 @@ class StopDisplayViewModel @Inject constructor(
                 errors.isNotEmpty() -> StopDisplayScreenUIState.Error(errors)
                 stopData.departures.isNotEmpty() -> StopDisplayScreenUIState.Success(
                     stopData.departures,
-                    stopData.routeName
+                    routenName
                 )
                 else -> StopDisplayScreenUIState.Loading()
             }

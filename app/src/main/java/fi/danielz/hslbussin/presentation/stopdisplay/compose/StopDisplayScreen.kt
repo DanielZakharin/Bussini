@@ -92,7 +92,7 @@ fun StopDisplayScreen(
                                     }
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
-                                        text = uiState.routeTitle(),
+                                        text = "Line:\n${uiState.routeTitle()}",
                                         fontSize = 20.sp,
                                         color = Color.White
                                     )

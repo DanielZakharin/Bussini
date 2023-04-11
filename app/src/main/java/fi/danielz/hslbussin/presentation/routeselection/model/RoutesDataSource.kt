@@ -14,7 +14,8 @@ import javax.inject.Inject
  */
 interface RouteData {
     val gtfsId: String
-    val name: String
+    val shortName: String
+    val fullName: String
     val directions: List<DirectionData>?
 }
 
@@ -23,7 +24,8 @@ interface RouteData {
  */
 class RoutesQueryData(queryDataItem: RoutesQuery.Route) : RouteData {
     override val gtfsId: String = queryDataItem.gtfsId
-    override val name: String = "${queryDataItem.shortName} - ${queryDataItem.longName}"
+    override val shortName: String = queryDataItem.shortName ?:""
+    override val fullName: String = "${queryDataItem.shortName} - ${queryDataItem.longName}"
     override val directions: List<DirectionData>? = queryDataItem.patterns?.mapNotNull {
         it?.let(::DirectionData)
     }

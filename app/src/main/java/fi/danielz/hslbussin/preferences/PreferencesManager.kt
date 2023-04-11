@@ -2,6 +2,7 @@ package fi.danielz.hslbussin.preferences
 
 import android.content.SharedPreferences
 
+const val SELECTED_ROUTE_ID_KEY = "SELECTED_ROUTE_ID_KEY"
 const val SELECTED_STOP_GTFSID_KEY = "SELECTED_STOP_GTFSID_KEY"
 
 /**

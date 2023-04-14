@@ -1,7 +1,7 @@
 package fi.danielz.hslbussin.presentation.stopdisplay.compose
 
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
@@ -21,14 +21,17 @@ fun StopDisplayDepartureItem(
     item: StopSingleDepartureData,
     ticker: State<Long>
 ) {
-    Row(
+    Column(
         modifier = Modifier
             .padding(8.dp)
     ) {
         Text(
             text = item.displayText(ticker.value),
             color = Color.White,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
         )
+        Spacer(modifier = Modifier.height(4.dp))
+        Divider()
     }
 }

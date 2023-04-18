@@ -1,15 +1,24 @@
 package fi.danielz.hslbussin.complication
 
 import android.content.BroadcastReceiver
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
-import android.util.Log
 import androidx.wear.watchface.complications.data.*
+import androidx.wear.watchface.complications.datasource.ComplicationRequest
 import androidx.wear.watchface.complications.datasource.SuspendingComplicationDataSourceService
+import com.apollographql.apollo3.ApolloClient
+import fi.danielz.hslbussin.StopQuery
+import fi.danielz.hslbussin.network.apolloClient
+import fi.danielz.hslbussin.preferences.PreferencesManager
+import fi.danielz.hslbussin.preferences.SharedPreferencesManager
+import fi.danielz.hslbussin.preferences.readRouteName
+import fi.danielz.hslbussin.preferences.readStopAndPattern
+import fi.danielz.hslbussin.utils.SHARED_PREFS_NAME
+import fi.danielz.hslbussin.utils.getSharedPrefs
+import fi.danielz.hslbussin.utils.millisToHoursMinutes
 import timber.log.Timber
-import java.util.*
+import javax.inject.Inject
 
 class UpdateRequestReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
@@ -24,7 +33,7 @@ class UpdateRequestReceiver : BroadcastReceiver() {
 // https://github.com/googlecodelabs/complications-data-source/blob/master/complete/src/main/java/com/example/android/wearable/complicationsdatasource/CustomComplicationDataSourceService.kt
 class BussiniComplicationProviderService : SuspendingComplicationDataSourceService() {
 
-    override fun getPreviewData(type: androidx.wear.watchface.complications.data.ComplicationType): androidx.wear.watchface.complications.data.ComplicationData? {
+    override fun getPreviewData(type: ComplicationType): ComplicationData? {
         return ShortTextComplicationData.Builder(
             text = PlainComplicationText.Builder(text = "85:\n12min").build(),
             contentDescription = PlainComplicationText.Builder(text = "Short Text version of Number.")
@@ -32,52 +41,67 @@ class BussiniComplicationProviderService : SuspendingComplicationDataSourceServi
         ).build()
     }
 
-    override suspend fun onComplicationRequest(request: androidx.wear.watchface.complications.datasource.ComplicationRequest): androidx.wear.watchface.complications.data.ComplicationData? {
+    override suspend fun onComplicationRequest(request: ComplicationRequest): ComplicationData? {
         // Create Tap Action so that the user can trigger an update by tapping the complication.
         //val thisDataSource = ComponentName(this, javaClass)
 
-        // Retrieves your data, in this case, we grab an incrementing number from Datastore.
-        val number: Int = 1337 /* TODO plug in network request = applicationContext.dataStore.data
-            .map { preferences ->
-                preferences[TAP_COUNTER_PREF_KEY] ?: 0
-            }
-            .first()*/
+        Timber.d("Complication request receive at ${System.currentTimeMillis()}")
 
-        val numberText = String.format(Locale.getDefault(), "%d!", number)
+        val prefs: SharedPreferencesManager = SharedPreferencesManager(
+            getSharedPrefs()
+        )
 
-        return when (request.complicationType) {
+        val (stopId, patternId) = prefs.readStopAndPattern()
+        val routeShortName = prefs.readRouteName()
 
-            ComplicationType.SHORT_TEXT -> ShortTextComplicationData.Builder(
-                text = PlainComplicationText.Builder(text = numberText).build(),
-                contentDescription = PlainComplicationText
-                    .Builder(text = "Short Text version of Number.").build()
-            )
-                //.setTapAction(complicationPendingIntent)
-                .build()
+        if (stopId == null || patternId == null) return buildComplication(
+            "No route selected",
+            request.complicationType
+        )
 
-            ComplicationType.LONG_TEXT -> LongTextComplicationData.Builder(
-                text = PlainComplicationText.Builder(text = "Number: $numberText").build(),
-                contentDescription = PlainComplicationText
-                    .Builder(text = "Long Text version of Number.").build()
-            )
-                //.setTapAction(complicationPendingIntent)
-                .build()
+        Timber.d("DEBUG $stopId $patternId $routeShortName")
 
-            ComplicationType.RANGED_VALUE -> RangedValueComplicationData.Builder(
-                value = number.toFloat(),
-                min = 0f,
-                max = 9001f,//ComplicationTapBroadcastReceiver.MAX_NUMBER.toFloat(),
-                contentDescription = PlainComplicationText
-                    .Builder(text = "Ranged Value version of Number.").build()
-            )
-                .setText(PlainComplicationText.Builder(text = numberText).build())
-                //.setTapAction(complicationPendingIntent)
-                .build()
-
-            else -> {
-                Timber.w("Unexpected complication type " + request.complicationType)
-                null
+        val res = apolloClient.query(StopQuery(stopId, patternId)).execute() // bit iffy with the apollo client here...
+        Timber.d("Complication res ${res.data}")
+        val nextDeparture: Int = res.data?.stop?.stopTimesForPattern?.firstOrNull()?.let {
+            if (it.realtime == true) {
+                it.realtimeDeparture
+            } else {
+                it.scheduledDeparture
             }
         }
+            ?: return buildComplication(
+                "No departures found",
+                request.complicationType
+            )
+
+        val formattedDeparture = millisToHoursMinutes(nextDeparture.toLong())
+
+        return buildComplication("$routeShortName: $formattedDeparture", request.complicationType)
     }
 }
+
+private fun buildComplication(displayText: String, complicationType: ComplicationType) =
+    when (complicationType) {
+
+        ComplicationType.SHORT_TEXT -> ShortTextComplicationData.Builder(
+            text = PlainComplicationText.Builder(text = displayText).build(),
+            contentDescription = PlainComplicationText
+                .Builder(text = "Short Text version of Number.").build()
+        )
+            //.setTapAction(complicationPendingIntent)
+            .build()
+
+        ComplicationType.LONG_TEXT -> LongTextComplicationData.Builder(
+            text = PlainComplicationText.Builder(text = displayText).build(),
+            contentDescription = PlainComplicationText
+                .Builder(text = "Long Text version of Number.").build()
+        )
+            //.setTapAction(complicationPendingIntent)
+            .build()
+
+        else -> {
+            Timber.w("Unexpected complication type $complicationType")
+            null
+        }
+    }

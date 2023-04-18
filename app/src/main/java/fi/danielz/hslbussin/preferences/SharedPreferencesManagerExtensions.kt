@@ -29,7 +29,7 @@ fun SharedPreferencesManager.readStopAndPattern(): Pair<String?, String?> {
     return readString(SELECTED_STOP_GTFSID_KEY) to readString(SELECTED_PATTERN_GTFSID_KEY)
 }
 
-fun SharedPreferencesManager.readStopName(): String = readString(SELECTED_ROUTE_ID_KEY) ?: ""
+fun SharedPreferencesManager.readRouteName(): String = readString(SELECTED_ROUTE_ID_KEY) ?: ""
 
 /**
  * Convenience function to check if a route + stop has previously been selected

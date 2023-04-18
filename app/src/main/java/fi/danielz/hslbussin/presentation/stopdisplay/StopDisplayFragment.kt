@@ -8,22 +8,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import fi.danielz.hslbussin.preferences.SharedPreferencesManager
 import fi.danielz.hslbussin.preferences.clearSavedPrefs
 import fi.danielz.hslbussin.preferences.readStopAndPattern
-import fi.danielz.hslbussin.preferences.readStopName
+import fi.danielz.hslbussin.preferences.readRouteName
 import fi.danielz.hslbussin.presentation.stopdisplay.compose.StopDisplayScreen
 import fi.danielz.hslbussin.presentation.stopdisplay.compose.StopDisplayScreenUIState
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapConcat
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -42,7 +34,7 @@ class StopDisplayFragment : Fragment() {
         super.onCreate(savedInstanceState)
         val (stopId, patternId) = prefs.readStopAndPattern()
 
-        vm.init(requireNotNull(stopId), requireNotNull(patternId), prefs.readStopName())
+        vm.init(requireNotNull(stopId), requireNotNull(patternId), prefs.readRouteName())
     }
 
     override fun onCreateView(

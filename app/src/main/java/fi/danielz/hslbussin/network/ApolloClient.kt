@@ -11,7 +11,7 @@ private const val apiUrl = "https://api.digitransit.fi/routing/v1/routers/hsl/in
 
 private val okHttpClient = OkHttpClient.Builder().build()
 
-internal val apolloClient = ApolloClient.Builder()
+val apolloClient = ApolloClient.Builder()
     .okHttpClient(okHttpClient)
     .serverUrl(apiUrl)
     .addHttpHeader("digitransit-subscription-key", BuildConfig.API_KEY)

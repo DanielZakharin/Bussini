@@ -5,6 +5,7 @@ import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Error
 import fi.danielz.hslbussin.StopQuery
 import fi.danielz.hslbussin.di.AppCoroutineScope
+import fi.danielz.hslbussin.utils.millisToHoursMinutes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
 import timber.log.Timber
@@ -46,21 +47,6 @@ class StopSingleDepartureQueryData(private val queryDataItem: StopQuery.StopTime
 
     override fun displayText(fromTimePoint: Long): String =
         millisToHoursMinutes(timeUntilDeparture(fromTimePoint))
-
-    companion object {
-        // internal companion object to be able to be testable
-        // TODO consider moving outside this class
-        internal fun millisToHoursMinutes(millis: Long): String {
-            val duration = Duration.ofMillis(millis)
-            val hoursPart = duration.toHours()
-            val minutesPart = duration.minusHours(hoursPart).toMinutes().toInt()
-            return if (hoursPart > 0L) {
-                "${hoursPart}h ${minutesPart}min"
-            } else {
-                "${minutesPart}min"
-            }
-        }
-    }
 }
 
 interface StopDeparturesDataSource {
@@ -82,8 +68,6 @@ class StopDeparturesNetworkDataSource @Inject constructor(
     private val patternIdFlow = MutableSharedFlow<String>(1)
     private val departuresResult: Flow<ApolloResponse<StopQuery.Data>> by lazy {
         stopIdFlow.combine(patternIdFlow) { stopId, patternId ->
-            val res = apolloClient.query(StopQuery(stopId, patternId)).execute()
-            Timber.d("res!! ${res.data}")
             apolloClient.query(StopQuery(stopId, patternId)).execute()
         }
     }

@@ -9,6 +9,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.FragmentComponent
 import fi.danielz.hslbussin.preferences.PreferencesManager
 import fi.danielz.hslbussin.preferences.SharedPreferencesManager
+import fi.danielz.hslbussin.utils.SHARED_PREFS_NAME
+import fi.danielz.hslbussin.utils.getSharedPrefs
 
 
 @Module
@@ -25,7 +27,7 @@ class SharedPreferencesManagerModule {
     @Provides
     fun provideSharePreferencesManager(fragment: Fragment): SharedPreferencesManager {
         return SharedPreferencesManager(
-            fragment.requireActivity().getPreferences(Context.MODE_PRIVATE)
+            fragment.requireActivity().getSharedPrefs()
         )
     }
 }

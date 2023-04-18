@@ -14,10 +14,11 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
 import fi.danielz.hslbussin.R
-import fi.danielz.hslbussin.preferences.SharedPreferencesManager
+import fi.danielz.hslbussin.preferences.PreferencesManager
 import fi.danielz.hslbussin.preferences.writePattern
 import fi.danielz.hslbussin.presentation.directionselection.compose.DirectionSelectionScreen
 import fi.danielz.hslbussin.presentation.routeselection.RouteSelectionViewModel
+import javax.inject.Inject
 
 /**
  * Simple fragment for selecting a direction of a route
@@ -29,6 +30,9 @@ class DirectionSelectionFragment : Fragment() {
     private val navargs by navArgs<DirectionSelectionFragmentArgs>()
 
     private val vm: RouteSelectionViewModel by hiltNavGraphViewModels(R.id.main_nav_graph)
+
+    @Inject
+    lateinit var prefs: PreferencesManager
 
     @OptIn(ExperimentalAnimationApi::class)
     override fun onCreateView(
@@ -44,9 +48,7 @@ class DirectionSelectionFragment : Fragment() {
                 }) { routeId, directionId ->
                     val routePattern = "$routeId:$directionId:01"
 
-                    SharedPreferencesManager(
-                        requireActivity().getPreferences(Context.MODE_PRIVATE)
-                    ).writePattern(routePattern)
+                    prefs.writePattern(routePattern)
 
                     findNavController().navigate(
                         DirectionSelectionFragmentDirections.toStopSelection(

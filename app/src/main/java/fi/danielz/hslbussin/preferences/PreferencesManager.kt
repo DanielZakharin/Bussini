@@ -20,13 +20,17 @@ interface PreferencesManager {
     fun readString(key: String): String?
 
     fun readInt(key: String): Int
+
+    fun hasEntry(key: String): Boolean
+
+    fun removeEntry(key: String)
 }
 
 /**
  * Implementation of [PreferencesManager] that stores values into {@link android.app.Activity.getPreferences Activity.getPreferences}
  */
 // TODO make this injectable with DI
-class SharedPreferencesManager constructor(internal val sharedPrefs: SharedPreferences) :
+class SharedPreferencesManager constructor(private val sharedPrefs: SharedPreferences) :
     PreferencesManager {
     override fun writeInt(key: String, value: Int) = with(sharedPrefs.edit()) {
         putInt(key, value)
@@ -41,4 +45,12 @@ class SharedPreferencesManager constructor(internal val sharedPrefs: SharedPrefe
     override fun readString(key: String): String? = sharedPrefs.getString(key, "")
 
     override fun readInt(key: String): Int = sharedPrefs.getInt(key, Int.MIN_VALUE)
+
+    override fun hasEntry(key: String): Boolean {
+        return sharedPrefs.contains(key)
+    }
+
+    override fun removeEntry(key: String) {
+        sharedPrefs.edit().remove(key).apply()
+    }
 }

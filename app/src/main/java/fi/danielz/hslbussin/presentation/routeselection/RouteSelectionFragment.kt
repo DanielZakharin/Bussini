@@ -6,7 +6,6 @@
 
 package fi.danielz.hslbussin.presentation.routeselection
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -18,7 +17,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import fi.danielz.hslbussin.R
-import fi.danielz.hslbussin.preferences.SharedPreferencesManager
+import fi.danielz.hslbussin.preferences.PreferencesManager
 import fi.danielz.hslbussin.preferences.hasRequiredStopData
 import fi.danielz.hslbussin.preferences.writeRoute
 import fi.danielz.hslbussin.presentation.routeselection.compose.RouteSelectionScreen
@@ -29,12 +28,12 @@ class RouteSelectionFragment : Fragment() {
     private val vm: RouteSelectionViewModel by hiltNavGraphViewModels(R.id.main_nav_graph)
 
     @Inject
-    lateinit var prefs: SharedPreferencesManager
+    lateinit var prefs: PreferencesManager
 
     override fun onResume() {
         super.onResume()
         // check if a selection exists
-        if (SharedPreferencesManager(requireActivity().getPreferences(Context.MODE_PRIVATE)).hasRequiredStopData()) {
+        if (prefs.hasRequiredStopData()) {
             findNavController().navigate(
                 RouteSelectionFragmentDirections.actionRouteSelectionFragmentToStopDisplayFragment()
             )

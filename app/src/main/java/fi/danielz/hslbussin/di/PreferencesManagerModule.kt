@@ -27,7 +27,7 @@ class SharedPreferencesManagerModule {
     @Provides
     fun provideSharePreferencesManager(fragment: Fragment): SharedPreferencesManager {
         return SharedPreferencesManager(
-            fragment.requireActivity().getSharedPrefs()
+            fragment.requireContext().getSharedPrefs()
         )
     }
 }

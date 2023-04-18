@@ -10,10 +10,10 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
-import fi.danielz.hslbussin.preferences.SharedPreferencesManager
+import fi.danielz.hslbussin.preferences.PreferencesManager
 import fi.danielz.hslbussin.preferences.clearSavedPrefs
-import fi.danielz.hslbussin.preferences.readStopAndPattern
 import fi.danielz.hslbussin.preferences.readRouteName
+import fi.danielz.hslbussin.preferences.readStopAndPattern
 import fi.danielz.hslbussin.presentation.stopdisplay.compose.StopDisplayScreen
 import fi.danielz.hslbussin.presentation.stopdisplay.compose.StopDisplayScreenUIState
 import javax.inject.Inject
@@ -28,7 +28,7 @@ class StopDisplayFragment : Fragment() {
     private val vm: StopDisplayViewModel by viewModels()
 
     @Inject
-    lateinit var prefs: SharedPreferencesManager
+    lateinit var prefs: PreferencesManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

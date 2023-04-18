@@ -47,7 +47,7 @@ class BussiniComplicationProviderService : SuspendingComplicationDataSourceServi
 
         Timber.d("Complication request receive at ${System.currentTimeMillis()}")
 
-        val prefs: SharedPreferencesManager = SharedPreferencesManager(
+        val prefs: PreferencesManager = SharedPreferencesManager(
             getSharedPrefs()
         )
 

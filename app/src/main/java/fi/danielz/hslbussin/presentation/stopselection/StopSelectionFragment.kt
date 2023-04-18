@@ -12,10 +12,11 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
-import fi.danielz.hslbussin.preferences.SharedPreferencesManager
+import fi.danielz.hslbussin.preferences.PreferencesManager
 import fi.danielz.hslbussin.preferences.writeStop
 import fi.danielz.hslbussin.presentation.stopselection.compose.StopSelectionScreen
 import fi.danielz.hslbussin.presentation.stopselection.compose.StopSelectionScreenUIState
+import javax.inject.Inject
 
 /**
  * Fragment for displaying route stops
@@ -26,6 +27,9 @@ class StopSelectionFragment : Fragment() {
     private val vm: StopSelectionViewModel by viewModels()
 
     private val args by navArgs<StopSelectionFragmentArgs>()
+
+    @Inject
+    lateinit var prefs: PreferencesManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,9 +52,7 @@ class StopSelectionFragment : Fragment() {
                         findNavController().popBackStack()
                     }
                 ) { stopId ->
-                    SharedPreferencesManager(
-                        requireActivity().getPreferences(Context.MODE_PRIVATE)
-                    ).writeStop(stopId)
+                    prefs.writeStop(stopId)
                     findNavController().navigate(
                         StopSelectionFragmentDirections.actionStopSelectionFragmentToStopDisplayFragment()
                     )

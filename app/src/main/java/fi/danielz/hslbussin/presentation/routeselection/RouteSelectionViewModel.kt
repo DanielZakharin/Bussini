@@ -3,10 +3,14 @@ package fi.danielz.hslbussin.presentation.routeselection
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import fi.danielz.hslbussin.network.NetworkStatus
 import fi.danielz.hslbussin.presentation.routeselection.compose.RouteSelectionScreenUIState
+import fi.danielz.hslbussin.presentation.routeselection.model.RouteData
 import fi.danielz.hslbussin.presentation.routeselection.model.RoutesDataSource
+import fi.danielz.hslbussin.presentation.routeselection.model.RoutesQueryData
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
@@ -15,17 +19,19 @@ import javax.inject.Inject
 class RouteSelectionViewModel @Inject constructor(
     dataSource: RoutesDataSource
 ) : ViewModel() {
-    private val routes = dataSource.routes
-    private val errors = dataSource.errors
+    private val res = dataSource.routesNetwokrResponse
 
     val routeSelectionUIState =
-        combine(routes, errors) { routeData, errors ->
-            when {
-                routeData.isNotEmpty() -> RouteSelectionScreenUIState.Success(
-                    routes = routeData
+        res.map {
+            when (it) {
+
+                is NetworkStatus.Success -> RouteSelectionScreenUIState.Success(
+                    routes = it.responseBody.routes?.filterNotNull()?.map {
+                        RoutesQueryData(it)
+                    } ?: emptyList()
                 )
-                errors.isNotEmpty() -> RouteSelectionScreenUIState.Error(
-                    errors = errors
+                is NetworkStatus.Error -> RouteSelectionScreenUIState.Error(
+                    listOf() // TODO figure out what form the errors should be
                 )
                 else -> RouteSelectionScreenUIState.Loading()
             }

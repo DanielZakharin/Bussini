@@ -1,9 +1,10 @@
 package fi.danielz.hslbussin.presentation.routeselection.model
 
 import com.apollographql.apollo3.ApolloClient
-import com.apollographql.apollo3.api.Error
 import fi.danielz.hslbussin.RoutesQuery
 import fi.danielz.hslbussin.di.AppCoroutineScope
+import fi.danielz.hslbussin.network.NetworkStatus
+import fi.danielz.hslbussin.network.queryAsNetworkResponse
 import fi.danielz.hslbussin.presentation.directionselection.model.DirectionData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
@@ -24,7 +25,7 @@ interface RouteData {
  */
 class RoutesQueryData(queryDataItem: RoutesQuery.Route) : RouteData {
     override val gtfsId: String = queryDataItem.gtfsId
-    override val shortName: String = queryDataItem.shortName ?:""
+    override val shortName: String = queryDataItem.shortName ?: ""
     override val fullName: String = "${queryDataItem.shortName} - ${queryDataItem.longName}"
     override val directions: List<DirectionData>? = queryDataItem.patterns?.mapNotNull {
         it?.let(::DirectionData)
@@ -35,8 +36,7 @@ class RoutesQueryData(queryDataItem: RoutesQuery.Route) : RouteData {
  * Abstract datasource of [RouteData] objects
  */
 interface RoutesDataSource {
-    val routes: Flow<List<RouteData>>
-    val errors: Flow<List<Error>>
+    val routesNetwokrResponse: Flow<NetworkStatus<RoutesQuery.Data>>
 }
 
 /**
@@ -46,33 +46,12 @@ interface RoutesDataSource {
 class RoutesNetworkDataSource @Inject constructor(
     private val apolloClient: ApolloClient,
     @AppCoroutineScope appCoroutineScope: CoroutineScope
-    ) :
-    RoutesDataSource {
-    private val clientResult by lazy {
+) : RoutesDataSource {
+    override val routesNetwokrResponse by lazy {
         flow {
             emit(
-                apolloClient.query(RoutesQuery()).execute()
+                apolloClient.queryAsNetworkResponse(RoutesQuery())
             )
         }
-    }
-    override val routes: Flow<List<RouteData>> by lazy {
-        clientResult.mapNotNull {
-            it.data?.routes?.filterNotNull()?.map {
-                RoutesQueryData(it)
-            }
-        }.stateIn(
-            scope = appCoroutineScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
-    }
-    override val errors: Flow<List<Error>> by lazy {
-        clientResult.mapNotNull {
-            it.errors
-        }.stateIn(
-            scope = appCoroutineScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
     }
 }

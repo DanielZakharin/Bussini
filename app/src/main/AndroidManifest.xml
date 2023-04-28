@@ -55,7 +55,7 @@
         <!-- Complication -->
         <!--
         <service
-            android:name=".complication.BussiniComplicationProviderService"
+            android:name=".complication.BussiniComplicationDataSource"
             android:exported="true"
             android:icon="@drawable/ic_launcher_foreground"
             android:label="Complication TODO"
@@ -84,7 +84,11 @@
                 android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
                 android:value="60" />
         </service>
+<<<<<<< HEAD
     -->
+=======
+        <receiver android:name=".complication.UpdateRequestReceiver" />
+>>>>>>> a116b5b (WIP timeline complication data source)
     </application>
 
 </manifest>

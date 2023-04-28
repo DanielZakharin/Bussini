@@ -53,6 +53,7 @@
         </activity>
 
         <!-- Complication -->
+        <!--
         <service
             android:name=".complication.BussiniComplicationProviderService"
             android:exported="true"
@@ -67,7 +68,6 @@
                 android:name="android.support.wearable.complications.SUPPORTED_TYPES"
                 android:value="SHORT_TEXT,LONG_TEXT" />
 
-            <!--
             When your complication data provider is active, UPDATE_PERIOD_SECONDS specifies how
             often you want the system to check for updates to the data. A zero value means you
             will manually trigger updates.
@@ -79,10 +79,12 @@
             Also, remember that this is only a guidance for the system. Android Wear may update less
             frequently.
             -->
+        <!--
             <meta-data
                 android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
                 android:value="60" />
         </service>
+    -->
     </application>
 
 </manifest>

@@ -7,18 +7,7 @@ import android.os.IBinder
 import androidx.wear.watchface.complications.data.*
 import androidx.wear.watchface.complications.datasource.ComplicationRequest
 import androidx.wear.watchface.complications.datasource.SuspendingComplicationDataSourceService
-import com.apollographql.apollo3.ApolloClient
-import fi.danielz.hslbussin.StopQuery
-import fi.danielz.hslbussin.network.apolloClient
-import fi.danielz.hslbussin.preferences.PreferencesManager
-import fi.danielz.hslbussin.preferences.SharedPreferencesManager
-import fi.danielz.hslbussin.preferences.readRouteName
-import fi.danielz.hslbussin.preferences.readStopAndPattern
-import fi.danielz.hslbussin.utils.SHARED_PREFS_NAME
-import fi.danielz.hslbussin.utils.getSharedPrefs
-import fi.danielz.hslbussin.utils.millisToHoursMinutes
 import timber.log.Timber
-import javax.inject.Inject
 
 class UpdateRequestReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
@@ -46,7 +35,7 @@ class BussiniComplicationProviderService : SuspendingComplicationDataSourceServi
         //val thisDataSource = ComponentName(this, javaClass)
 
         Timber.d("Complication request receive at ${System.currentTimeMillis()}")
-
+/*
         val prefs: PreferencesManager = SharedPreferencesManager(
             getSharedPrefs()
         )
@@ -78,6 +67,8 @@ class BussiniComplicationProviderService : SuspendingComplicationDataSourceServi
         val formattedDeparture = millisToHoursMinutes(nextDeparture.toLong())
 
         return buildComplication("$routeShortName: $formattedDeparture", request.complicationType)
+        */
+        return null
     }
 }
 

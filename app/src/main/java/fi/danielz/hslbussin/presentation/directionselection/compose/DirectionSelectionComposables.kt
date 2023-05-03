@@ -16,11 +16,17 @@ import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material.CircularProgressIndicator
 import androidx.wear.compose.material.MaterialTheme
 import fi.danielz.hslbussin.compose.ErrorBanner
+import fi.danielz.hslbussin.compose.ErrorWithRetryButton
 import fi.danielz.hslbussin.compose.IconRow
 import fi.danielz.hslbussin.compose.SelectionHeaderWithBackButton
 import fi.danielz.hslbussin.presentation.routeselection.compose.RouteSelectionScreenUIState
 import fi.danielz.hslbussin.presentation.theme.HSLBussinTheme
 
+interface DirectionSelectionClickHandler {
+    fun onDirectionSelected(routeId: String, directionId: Int)
+    fun onBackPressed()
+    fun onReloadClick()
+}
 
 /**
  * Similar to route selection
@@ -30,14 +36,12 @@ import fi.danielz.hslbussin.presentation.theme.HSLBussinTheme
 fun DirectionSelectionScreen(
     selectedRouteId: String,
     uiState: RouteSelectionScreenUIState,
-    onBackPressed: () -> Unit,
-    onItemSelected: (routeId: String, directionId: Int) -> Unit
+    clickHandler: DirectionSelectionClickHandler
 ) {
     HSLBussinTheme {
         when (uiState) {
             is RouteSelectionScreenUIState.Error -> {
-                // TODO ERROR
-                ErrorBanner(uiState.errors)
+                ErrorWithRetryButton(onRetryClick = clickHandler::onReloadClick)
             }
             is RouteSelectionScreenUIState.Loading -> {
                 Box(
@@ -61,9 +65,9 @@ fun DirectionSelectionScreen(
                         }?.directions ?: emptyList()
                         // add extra item for header
                         item {
-                             SelectionHeaderWithBackButton(
+                            SelectionHeaderWithBackButton(
                                 "Select direction",
-                                onBackPressed
+                                clickHandler::onBackPressed
                             )
                         }
                         items(selectedRouteDirections.size) { index ->
@@ -73,7 +77,7 @@ fun DirectionSelectionScreen(
                                 imageVector = Icons.Default.CompareArrows
                             ) {
                                 it.directionId?.let { dir ->
-                                    onItemSelected(selectedRouteId, dir)
+                                    clickHandler.onDirectionSelected(selectedRouteId, dir)
                                 }
                             }
                         }
@@ -82,5 +86,4 @@ fun DirectionSelectionScreen(
             }
         }
     }
-
 }

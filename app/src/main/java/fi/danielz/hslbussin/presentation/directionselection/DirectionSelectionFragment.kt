@@ -1,6 +1,5 @@
 package fi.danielz.hslbussin.presentation.directionselection
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,6 +15,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import fi.danielz.hslbussin.R
 import fi.danielz.hslbussin.preferences.PreferencesManager
 import fi.danielz.hslbussin.preferences.writePattern
+import fi.danielz.hslbussin.presentation.directionselection.compose.DirectionSelectionClickHandler
 import fi.danielz.hslbussin.presentation.directionselection.compose.DirectionSelectionScreen
 import fi.danielz.hslbussin.presentation.routeselection.RouteSelectionViewModel
 import javax.inject.Inject
@@ -27,12 +27,37 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class DirectionSelectionFragment : Fragment() {
 
+    @Inject
+    lateinit var prefs: PreferencesManager
+
     private val navargs by navArgs<DirectionSelectionFragmentArgs>()
 
     private val vm: RouteSelectionViewModel by hiltNavGraphViewModels(R.id.main_nav_graph)
 
-    @Inject
-    lateinit var prefs: PreferencesManager
+    private val clickHandler = object : DirectionSelectionClickHandler {
+        override fun onDirectionSelected(routeId: String, directionId: Int) {
+            val routePattern = "$routeId:$directionId:01"
+
+            prefs.writePattern(routePattern)
+
+            findNavController().navigate(
+                DirectionSelectionFragmentDirections.toStopSelection(
+                    routeId,
+                    directionId
+                )
+            )
+        }
+
+        override fun onBackPressed() {
+            findNavController().popBackStack()
+        }
+
+        override fun onReloadClick() {
+            vm.reloadRoutes()
+        }
+
+    }
+
 
     @OptIn(ExperimentalAnimationApi::class)
     override fun onCreateView(
@@ -43,20 +68,11 @@ class DirectionSelectionFragment : Fragment() {
         return ComposeView(requireContext()).apply {
             setContent {
                 val uiState = vm.routeSelectionUIState.collectAsState()
-                DirectionSelectionScreen(navargs.selectedRouteId, uiState.value, {
-                    findNavController().popBackStack()
-                }) { routeId, directionId ->
-                    val routePattern = "$routeId:$directionId:01"
-
-                    prefs.writePattern(routePattern)
-
-                    findNavController().navigate(
-                        DirectionSelectionFragmentDirections.toStopSelection(
-                            routeId,
-                            directionId
-                        )
-                    )
-                }
+                DirectionSelectionScreen(
+                    selectedRouteId = navargs.selectedRouteId,
+                    uiState = uiState.value,
+                    clickHandler = clickHandler
+                )
             }
         }
     }

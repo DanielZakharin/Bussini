@@ -14,6 +14,7 @@ import fi.danielz.hslbussin.preferences.PreferencesManager
 import fi.danielz.hslbussin.preferences.clearSavedPrefs
 import fi.danielz.hslbussin.preferences.readRouteName
 import fi.danielz.hslbussin.preferences.readStopAndPattern
+import fi.danielz.hslbussin.presentation.stopdisplay.compose.StopDisplayClickHandler
 import fi.danielz.hslbussin.presentation.stopdisplay.compose.StopDisplayScreen
 import fi.danielz.hslbussin.presentation.stopdisplay.compose.StopDisplayScreenUIState
 import javax.inject.Inject
@@ -29,6 +30,18 @@ class StopDisplayFragment : Fragment() {
 
     @Inject
     lateinit var prefs: PreferencesManager
+
+    private val clickHandler = object : StopDisplayClickHandler {
+        override fun onSwitchRoutePressed() {
+            prefs.clearSavedPrefs()
+            findNavController()
+                .navigate(StopDisplayFragmentDirections.actionStopDisplayFragmentToRouteSelectionFragment())
+        }
+
+        override fun onRetryPressed() {
+            TODO("Not yet implemented")
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,11 +60,7 @@ class StopDisplayFragment : Fragment() {
                 val uiState =
                     vm.uiState.collectAsState(initial = StopDisplayScreenUIState.Loading())
                 val ticker = vm.tickerFlow.collectAsState(initial = System.currentTimeMillis())
-                StopDisplayScreen(uiState = uiState.value, ticker = ticker) {
-                    prefs.clearSavedPrefs()
-                    findNavController()
-                        .navigate(StopDisplayFragmentDirections.actionStopDisplayFragmentToRouteSelectionFragment())
-                }
+                StopDisplayScreen(uiState = uiState.value, ticker = ticker, clickHandler)
             }
         }
     }

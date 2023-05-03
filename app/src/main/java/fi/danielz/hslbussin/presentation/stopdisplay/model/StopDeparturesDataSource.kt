@@ -5,6 +5,8 @@ import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Error
 import fi.danielz.hslbussin.StopQuery
 import fi.danielz.hslbussin.di.AppCoroutineScope
+import fi.danielz.hslbussin.network.NetworkStatus
+import fi.danielz.hslbussin.network.queryAsNetworkResponseFlow
 import fi.danielz.hslbussin.utils.millisToHoursMinutes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
@@ -51,9 +53,9 @@ interface StopDeparturesDataSource {
     fun stopDataForPattern(
         stopId: String,
         patternId: String
-    ): Flow<StopDisplayData>
+    ): Flow<NetworkStatus<StopQuery.Data>>
 
-    val errors: Flow<List<Error>>
+    fun reload()
 }
 
 class StopDeparturesNetworkDataSource @Inject constructor(
@@ -62,40 +64,35 @@ class StopDeparturesNetworkDataSource @Inject constructor(
 ) :
     StopDeparturesDataSource {
 
+    private val networkRetryTrigger = MutableStateFlow(0)
+
     private val stopIdFlow = MutableSharedFlow<String>(1)
     private val patternIdFlow = MutableSharedFlow<String>(1)
-    private val departuresResult: Flow<ApolloResponse<StopQuery.Data>> by lazy {
-        stopIdFlow.combine(patternIdFlow) { stopId, patternId ->
-            apolloClient.query(StopQuery(stopId, patternId)).execute()
+    private val departuresResult: Flow<NetworkStatus<StopQuery.Data>> by lazy {
+        networkRetryTrigger.flatMapConcat {
+            stopIdFlow.combineTransform(patternIdFlow) { stopId, patternId ->
+                apolloClient.queryAsNetworkResponseFlow(StopQuery(stopId, patternId))
+            }
         }
     }
-    private val stopDataFlow: Flow<StopDisplayData> by lazy {
-        departuresResult.map {
-            StopDisplayData(
-                departures = it.data?.stop?.stopTimesForPattern?.mapNotNull { stopTime ->
-                    stopTime?.let(::StopSingleDepartureQueryData)
-                } ?: emptyList())
-        }.stateIn(
+    private val stopDataFlow: Flow<NetworkStatus<StopQuery.Data>> by lazy {
+        departuresResult.stateIn(
             started = SharingStarted.WhileSubscribed(5000),
             scope = appCoroutineScope,
-            initialValue = StopDisplayData.empty
+            initialValue = NetworkStatus.InProgress()
         )
     }
 
     override fun stopDataForPattern(
         stopId: String,
         patternId: String
-    ): Flow<StopDisplayData> {
+    ): Flow<NetworkStatus<StopQuery.Data>> {
         stopIdFlow.tryEmit(stopId)
         patternIdFlow.tryEmit(patternId)
         return stopDataFlow
     }
 
-    override val errors: Flow<List<Error>> by lazy {
-        departuresResult.mapNotNull { it.errors }.stateIn(
-            scope = appCoroutineScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
+    override fun reload() {
+        networkRetryTrigger.tryEmit(networkRetryTrigger.value + 1)
     }
 }

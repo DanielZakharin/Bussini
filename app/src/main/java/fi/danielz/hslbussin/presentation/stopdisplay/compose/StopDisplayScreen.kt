@@ -3,6 +3,7 @@ package fi.danielz.hslbussin.presentation.stopdisplay.compose
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,42 +18,46 @@ import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.MaterialTheme
+import fi.danielz.hslbussin.compose.ErrorWithRetryButton
 import fi.danielz.hslbussin.compose.SelectionHeader
 import fi.danielz.hslbussin.presentation.stopdisplay.model.StopSingleDepartureData
 import fi.danielz.hslbussin.presentation.theme.HSLBussinTheme
 import com.apollographql.apollo3.api.Error as ApolloError
 
 
-sealed interface StopDisplayScreenUIState {
-    val departures: List<StopSingleDepartureData>
-    val errors: List<ApolloError>
-    fun routeTitle(): String = ""
+sealed class StopDisplayScreenUIState {
+    abstract val departures: List<StopSingleDepartureData>
+    open val error: Exception? = null
+    open fun routeTitle(): String = ""
 
     data class Success(
         override val departures: List<StopSingleDepartureData>,
         private val routeTitle: String
-    ) : StopDisplayScreenUIState {
-        override val errors: List<ApolloError> = emptyList()
+    ) : StopDisplayScreenUIState() {
         override fun routeTitle(): String = routeTitle
     }
 
     data class Error(
-        override val errors: List<com.apollographql.apollo3.api.Error>
-    ) : StopDisplayScreenUIState {
+        override val error: Exception
+    ) : StopDisplayScreenUIState() {
         override val departures: List<StopSingleDepartureData> = emptyList()
     }
 
-    class Loading : StopDisplayScreenUIState {
+    class Loading : StopDisplayScreenUIState() {
         override val departures: List<StopSingleDepartureData> = emptyList()
-        override val errors: List<ApolloError> = emptyList()
     }
+}
+
+interface StopDisplayClickHandler {
+    fun onSwitchRoutePressed()
+    fun onRetryPressed()
 }
 
 @Composable
 fun StopDisplayScreen(
     uiState: StopDisplayScreenUIState,
     ticker: State<Long>,
-    onSwitchRoutePressed: () -> Unit,
+    clickHandler: StopDisplayClickHandler
 ) {
     HSLBussinTheme {
         when (uiState) {
@@ -65,7 +70,9 @@ fun StopDisplayScreen(
                 }
             }
             is StopDisplayScreenUIState.Error -> {
-                // TODO
+                ErrorWithRetryButton(
+                    onRetryClick = clickHandler::onRetryPressed
+                )
             }
             is StopDisplayScreenUIState.Success -> {
                 Column(
@@ -87,7 +94,7 @@ fun StopDisplayScreen(
 
                                     ) {
                                     Button(
-                                        onClick = onSwitchRoutePressed,
+                                        onClick = clickHandler::onSwitchRoutePressed,
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.SwapHoriz,
@@ -102,26 +109,37 @@ fun StopDisplayScreen(
                                     )
                                 }
                             }
-                            // first departure and header
-                            item {
-                                SelectionHeader(text = "Next departure in:")
-                            }
-                            item {
-                                uiState.departures.firstOrNull()?.let { departure ->
-                                    StopDisplayDepartureItem(item = departure, ticker)
-                                }
-                            }
-                            // subsequent departures
-                            if (uiState.departures.size > 1) {
+
+                            // case: no departures
+                            if (uiState.departures.isEmpty() || true /* FIXME DEBUG */) {
                                 item {
-                                    SelectionHeader(text = "And then in:")
+                                    SelectionHeader(text = "No departures found. Switch route, or refresh")
+                                    Button(onClick = clickHandler::onRetryPressed) {
+                                        Icon(Icons.Default.Refresh, contentDescription = "Retry")
+                                    }
                                 }
-                            }
-                            items(uiState.departures.size) { index ->
-                                // skip first item, added previously
-                                if (index != 0) {
-                                    val departure = uiState.departures[index]
-                                    StopDisplayDepartureItem(item = departure, ticker)
+                            } else {
+                                // first departure and header
+                                item {
+                                    SelectionHeader(text = "Next departure in:")
+                                }
+                                item {
+                                    uiState.departures.firstOrNull()?.let { departure ->
+                                        StopDisplayDepartureItem(item = departure, ticker)
+                                    }
+                                }
+                                // subsequent departures
+                                if (uiState.departures.size > 1) {
+                                    item {
+                                        SelectionHeader(text = "And then in:")
+                                    }
+                                }
+                                items(uiState.departures.size) { index ->
+                                    // skip first item, added previously
+                                    if (index != 0) {
+                                        val departure = uiState.departures[index]
+                                        StopDisplayDepartureItem(item = departure, ticker)
+                                    }
                                 }
                             }
                         })

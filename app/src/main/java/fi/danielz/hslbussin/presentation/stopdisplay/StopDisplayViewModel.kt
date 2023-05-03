@@ -2,17 +2,20 @@ package fi.danielz.hslbussin.presentation.stopdisplay
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fi.danielz.hslbussin.R
+import fi.danielz.hslbussin.StopQuery
+import fi.danielz.hslbussin.network.NetworkStatus
 import fi.danielz.hslbussin.presentation.stopdisplay.compose.StopDisplayScreenUIState
 import fi.danielz.hslbussin.presentation.stopdisplay.model.StopDisplayData
 import fi.danielz.hslbussin.presentation.stopdisplay.model.StopDeparturesDataSource
+import fi.danielz.hslbussin.presentation.stopdisplay.model.StopSingleDepartureQueryData
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.lang.Exception
 import javax.inject.Inject
 
 @HiltViewModel
@@ -44,22 +47,22 @@ class StopDisplayViewModel @Inject constructor(
                     -1L
                 }
             }.filter { it > 0L }.collect {
-                manualRefresh.emit(it)
+                tickerRefreshTrigger.emit(it)
             }
         }
     }
 
-    private val manualRefresh = MutableStateFlow(0L)
+    private val tickerRefreshTrigger = MutableStateFlow(0L)
     private val stopIdFlow = MutableStateFlow<String?>(null)
     private val patternIdFlow = MutableStateFlow<String?>(null)
-    private val combinedFlow = combine(stopIdFlow, patternIdFlow, manualRefresh) { a, b, c ->
+    private val combinedFlow = combine(stopIdFlow, patternIdFlow, tickerRefreshTrigger) { a, b, c ->
         Triple(
             a,
             b,
             c
         )
     }
-    private val _departuresForStopAndPattern: Flow<StopDisplayData> by lazy {
+    private val _departuresForStopAndPattern: Flow<NetworkStatus<StopQuery.Data>> by lazy {
         if (!initialized) throw IllegalStateException("StopViewModel not initialized!")
         combinedFlow.flatMapMerge { (stopId, patternId, refresh) ->
             if (refresh != 0L) Timber.d("Manual refresh triggered!")
@@ -68,19 +71,15 @@ class StopDisplayViewModel @Inject constructor(
         }.stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000),
-            StopDisplayData.empty
+            NetworkStatus.InProgress()
         )
-    }
-
-    private val errors: Flow<List<com.apollographql.apollo3.api.Error>> by lazy {
-        stopDeparturesDataSource.errors
     }
 
     val tickerFlow = flow {
         while (true) {
             emit(System.currentTimeMillis())
             delay(
-                application.resources.getInteger(R.integer.global_ticker_frequency_millis_debug)
+                application.resources.getInteger(R.integer.global_ticker_frequency_millis)
                     .toLong()
             )
         }
@@ -88,14 +87,18 @@ class StopDisplayViewModel @Inject constructor(
 
 
     val uiState: Flow<StopDisplayScreenUIState> by lazy {
-        combine(_departuresForStopAndPattern, errors) { stopData, errors ->
-            when {
-                errors.isNotEmpty() -> StopDisplayScreenUIState.Error(errors)
-                stopData.departures.isNotEmpty() -> StopDisplayScreenUIState.Success(
-                    stopData.departures,
-                    routenName
+        _departuresForStopAndPattern.map {
+            when (it) {
+                is NetworkStatus.InProgress -> StopDisplayScreenUIState.Loading()
+                is NetworkStatus.Error -> StopDisplayScreenUIState.Error(
+                    it.error ?: Exception("Np exception given...")
                 )
-                else -> StopDisplayScreenUIState.Loading()
+                is NetworkStatus.Success -> {
+                    val deps = it.body?.stop?.stopTimesForPattern?.mapNotNull { stopTime ->
+                        stopTime?.let(::StopSingleDepartureQueryData)
+                    } ?: emptyList()
+                    StopDisplayScreenUIState.Success(deps ,routenName)
+                }
             }
         }.distinctUntilChanged()
     }

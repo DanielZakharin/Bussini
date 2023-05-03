@@ -1,11 +1,9 @@
 package fi.danielz.hslbussin.network
 
 import com.apollographql.apollo3.ApolloClient
-import com.apollographql.apollo3.api.ApolloResponse
-import com.apollographql.apollo3.api.Operation
+import com.apollographql.apollo3.api.Error
 import com.apollographql.apollo3.api.Query
 import com.apollographql.apollo3.exception.ApolloException
-import com.apollographql.apollo3.api.Error
 
 suspend fun <D : Query.Data> ApolloClient.makeRequest(
     query: Query<D>,

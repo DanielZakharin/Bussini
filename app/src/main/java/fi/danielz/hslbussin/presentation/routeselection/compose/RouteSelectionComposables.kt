@@ -4,10 +4,7 @@ package fi.danielz.hslbussin.presentation.routeselection.compose
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DirectionsBus
 import androidx.compose.runtime.Composable
@@ -20,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material.CircularProgressIndicator
 import androidx.wear.compose.material.MaterialTheme
+import fi.danielz.hslbussin.compose.ErrorWithRetryButton
 import fi.danielz.hslbussin.compose.IconRow
 import fi.danielz.hslbussin.compose.SelectionHeader
 import fi.danielz.hslbussin.presentation.routeselection.model.RouteData
@@ -47,15 +45,22 @@ sealed interface RouteSelectionScreenUIState {
     }
 }
 
+interface RouteSelectionClickHandler {
+    fun onRouteSelected(data: RouteData)
+    fun onRetryErrorClick()
+}
+
 @Composable
 fun RouteSelectionScreen(
     uiState: RouteSelectionScreenUIState,
-    onRouteSelectedClick: (RouteData) -> Unit = {}
+    clickHandler: RouteSelectionClickHandler
 ) {
     HSLBussinTheme {
         when (uiState) {
             is RouteSelectionScreenUIState.Error -> {
-                // TODO show only error
+                Box(modifier = Modifier.padding(8.dp)) {
+                    ErrorWithRetryButton(onRetryClick = clickHandler::onRetryErrorClick)
+                }
             }
             is RouteSelectionScreenUIState.Loading -> {
                 Box(
@@ -83,7 +88,7 @@ fun RouteSelectionScreen(
                         items(uiState.routes.size) { index ->
                             IconRow(
                                 item = uiState.routes[index],
-                                onClick = onRouteSelectedClick,
+                                onClick = clickHandler::onRouteSelected,
                                 imageVector = Icons.Default.DirectionsBus,
                                 text = { it.fullName }
                             )
@@ -101,6 +106,7 @@ private class StateProvider : PreviewParameterProvider<RouteSelectionScreenUISta
     override val count: Int = 2
     override val values: Sequence<RouteSelectionScreenUIState> = sequenceOf(
         RouteSelectionScreenUIState.Loading(),
+        RouteSelectionScreenUIState.Error(emptyList()),
         RouteSelectionScreenUIState.Success(
             emptyList() // TODO
         ),
@@ -112,5 +118,13 @@ private class StateProvider : PreviewParameterProvider<RouteSelectionScreenUISta
 private fun RouteSelectionScreenPreview(
     @PreviewParameter(StateProvider::class) uiState: RouteSelectionScreenUIState
 ) {
-    RouteSelectionScreen(uiState = uiState)
+    RouteSelectionScreen(uiState = uiState, clickHandler = object : RouteSelectionClickHandler {
+        override fun onRouteSelected(data: RouteData) {
+
+        }
+
+        override fun onRetryErrorClick() {
+
+        }
+    })
 }

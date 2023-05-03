@@ -8,8 +8,6 @@ import fi.danielz.hslbussin.di.AppCoroutineScope
 import fi.danielz.hslbussin.utils.millisToHoursMinutes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
-import timber.log.Timber
-import java.time.Duration
 import javax.inject.Inject
 
 data class StopDisplayData(

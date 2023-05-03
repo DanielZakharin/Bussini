@@ -1,6 +1,5 @@
 package fi.danielz.hslbussin.di
 
-import android.content.Context
 import androidx.fragment.app.Fragment
 import dagger.Binds
 import dagger.Module
@@ -9,7 +8,6 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.FragmentComponent
 import fi.danielz.hslbussin.preferences.PreferencesManager
 import fi.danielz.hslbussin.preferences.SharedPreferencesManager
-import fi.danielz.hslbussin.utils.SHARED_PREFS_NAME
 import fi.danielz.hslbussin.utils.getSharedPrefs
 
 

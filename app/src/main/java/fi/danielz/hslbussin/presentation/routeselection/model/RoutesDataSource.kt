@@ -2,12 +2,13 @@ package fi.danielz.hslbussin.presentation.routeselection.model
 
 import com.apollographql.apollo3.ApolloClient
 import fi.danielz.hslbussin.RoutesQuery
-import fi.danielz.hslbussin.di.AppCoroutineScope
 import fi.danielz.hslbussin.network.NetworkStatus
-import fi.danielz.hslbussin.network.queryAsNetworkResponse
+import fi.danielz.hslbussin.network.queryAsNetworkResponseFlow
 import fi.danielz.hslbussin.presentation.directionselection.model.DirectionData
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flatMapConcat
+import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -37,6 +38,7 @@ class RoutesQueryData(queryDataItem: RoutesQuery.Route) : RouteData {
  */
 interface RoutesDataSource {
     val routesNetwokrResponse: Flow<NetworkStatus<RoutesQuery.Data>>
+    fun reload()
 }
 
 /**
@@ -45,13 +47,16 @@ interface RoutesDataSource {
  */
 class RoutesNetworkDataSource @Inject constructor(
     private val apolloClient: ApolloClient,
-    @AppCoroutineScope appCoroutineScope: CoroutineScope
 ) : RoutesDataSource {
+    private val networkRetryTrigger = MutableStateFlow(0)
     override val routesNetwokrResponse by lazy {
-        flow {
-            emit(
-                apolloClient.queryAsNetworkResponse(RoutesQuery())
-            )
+        networkRetryTrigger.flatMapConcat {
+            Timber.d("Emitting reload trigger $it")
+            apolloClient.queryAsNetworkResponseFlow(RoutesQuery())
         }
+    }
+
+    override fun reload() {
+        networkRetryTrigger.tryEmit(networkRetryTrigger.value + 1)
     }
 }

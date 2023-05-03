@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.SwapHoriz
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
@@ -58,7 +57,12 @@ fun StopDisplayScreen(
     HSLBussinTheme {
         when (uiState) {
             is StopDisplayScreenUIState.Loading -> {
-                CircularProgressIndicator()
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    androidx.wear.compose.material.CircularProgressIndicator()
+                }
             }
             is StopDisplayScreenUIState.Error -> {
                 // TODO

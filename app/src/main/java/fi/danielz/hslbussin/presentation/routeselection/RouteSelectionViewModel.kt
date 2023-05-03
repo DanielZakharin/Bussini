@@ -5,11 +5,9 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fi.danielz.hslbussin.network.NetworkStatus
 import fi.danielz.hslbussin.presentation.routeselection.compose.RouteSelectionScreenUIState
-import fi.danielz.hslbussin.presentation.routeselection.model.RouteData
 import fi.danielz.hslbussin.presentation.routeselection.model.RoutesDataSource
 import fi.danielz.hslbussin.presentation.routeselection.model.RoutesQueryData
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
@@ -17,7 +15,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RouteSelectionViewModel @Inject constructor(
-    dataSource: RoutesDataSource
+    private val dataSource: RoutesDataSource
 ) : ViewModel() {
     private val res = dataSource.routesNetwokrResponse
 
@@ -41,4 +39,8 @@ class RouteSelectionViewModel @Inject constructor(
                 initialValue = RouteSelectionScreenUIState.Loading(),
                 started = WhileSubscribed(5000)
             )
+
+    fun reloadRoutes() {
+        dataSource.reload()
+    }
 }

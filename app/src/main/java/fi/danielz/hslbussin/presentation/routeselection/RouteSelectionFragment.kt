@@ -20,12 +20,30 @@ import fi.danielz.hslbussin.R
 import fi.danielz.hslbussin.preferences.PreferencesManager
 import fi.danielz.hslbussin.preferences.hasRequiredStopData
 import fi.danielz.hslbussin.preferences.writeRoute
+import fi.danielz.hslbussin.presentation.routeselection.compose.RouteSelectionClickHandler
 import fi.danielz.hslbussin.presentation.routeselection.compose.RouteSelectionScreen
+import fi.danielz.hslbussin.presentation.routeselection.model.RouteData
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class RouteSelectionFragment : Fragment() {
     private val vm: RouteSelectionViewModel by hiltNavGraphViewModels(R.id.main_nav_graph)
+
+    private val clickHandler = object : RouteSelectionClickHandler {
+        override fun onRouteSelected(data: RouteData) {
+            // save route name for display
+            prefs.writeRoute(data.shortName)
+            this@RouteSelectionFragment.findNavController().navigate(
+                RouteSelectionFragmentDirections.toDirectionSelection(
+                    data.gtfsId
+                )
+            )
+        }
+
+        override fun onRetryErrorClick() {
+            vm.reloadRoutes()
+        }
+    }
 
     @Inject
     lateinit var prefs: PreferencesManager
@@ -49,16 +67,9 @@ class RouteSelectionFragment : Fragment() {
             setContent {
                 val uiState = vm.routeSelectionUIState.collectAsStateWithLifecycle()
                 RouteSelectionScreen(
-                    uiState.value
-                ) {
-                    // save route name for display
-                    prefs.writeRoute(it.shortName)
-                    this@RouteSelectionFragment.findNavController().navigate(
-                        RouteSelectionFragmentDirections.toDirectionSelection(
-                            it.gtfsId
-                        )
-                    )
-                }
+                    uiState.value,
+                    clickHandler
+                )
             }
         }
     }

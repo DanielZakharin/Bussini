@@ -1,16 +1,18 @@
 package fi.danielz.hslbussin.presentation.stopdisplay.model
 
 import com.apollographql.apollo3.ApolloClient
-import com.apollographql.apollo3.api.ApolloResponse
-import com.apollographql.apollo3.api.Error
 import fi.danielz.hslbussin.StopQuery
 import fi.danielz.hslbussin.di.AppCoroutineScope
 import fi.danielz.hslbussin.network.NetworkStatus
 import fi.danielz.hslbussin.network.queryAsNetworkResponseFlow
 import fi.danielz.hslbussin.utils.millisToHoursMinutes
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
+
+const val TICKER_DEFAULT_REFRESH_INTERVAL_MS = 30000L // five minutes
+const val TICKER_DEFAULT_REFRESH_INTERVAL_MS_DEBUG = 300L // three seconds
 
 data class StopDisplayData(
     val departures: List<StopSingleDepartureData>
@@ -49,15 +51,88 @@ class StopSingleDepartureQueryData(private val queryDataItem: StopQuery.StopTime
         millisToHoursMinutes(timeUntilDeparture(fromTimePoint))
 }
 
+data class StopDeparturesPattern(
+    val stopId: String,
+    val patternId: String
+)
+
 interface StopDeparturesDataSource {
     fun stopDataForPattern(
-        stopId: String,
-        patternId: String
+        pattern: StopDeparturesPattern
     ): Flow<NetworkStatus<StopQuery.Data>>
 
     fun reload()
 }
 
+/**
+ * Provides stop departures via network request
+ */
+open class StopDeparturesNetworkDataSource @Inject constructor(
+    private val apolloClient: ApolloClient
+) : StopDeparturesDataSource {
+
+    private lateinit var latestPattern: StopDeparturesPattern
+    protected val patternSharedFlow = MutableSharedFlow<StopDeparturesPattern>(replay = 1)
+    protected open val networkResponse: Flow<NetworkStatus<StopQuery.Data>> =
+        patternSharedFlow.flatMapConcat { pattern ->
+            apolloClient.queryAsNetworkResponseFlow(StopQuery(pattern.stopId, pattern.patternId))
+        }
+
+    final override fun stopDataForPattern(pattern: StopDeparturesPattern): Flow<NetworkStatus<StopQuery.Data>> {
+        latestPattern = pattern
+        patternSharedFlow.tryEmit(pattern)
+        return networkResponse
+    }
+
+    final override fun reload() {
+        // dont reload if no pattern previously given
+        if (!::latestPattern.isInitialized) return
+        patternSharedFlow.tryEmit(latestPattern)
+    }
+}
+
+class AutoRefreshingStopDeparturesNetworkDataSource @Inject constructor(
+    apolloClient: ApolloClient,
+    @AppCoroutineScope appCoroutineScope: CoroutineScope
+) : StopDeparturesNetworkDataSource(apolloClient) {
+
+    private val refreshDelay = MutableSharedFlow<Long>().apply {
+        tryEmit(0L)
+    } // no initial delay
+
+    private val tickerFlow = refreshDelay.flatMapConcat { delayMillis ->
+        flow {
+            if (delayMillis > 0L) {
+                delay(
+                    delayMillis
+                )
+            }
+            emit(System.currentTimeMillis())
+        }
+    }.shareIn(
+        appCoroutineScope,
+        SharingStarted.WhileSubscribed(),
+        1
+    )
+    override val networkResponse: Flow<NetworkStatus<StopQuery.Data>> = tickerFlow.flatMapConcat {
+        patternSharedFlow.flatMapConcat { pattern ->
+            apolloClient.queryAsNetworkResponseFlow(StopQuery(pattern.stopId, pattern.patternId))
+        }.map {
+            val nextDepartureInMillis = it.body?.stop?.stopTimesForPattern?.firstOrNull()?.let {
+                if (it.realtime == true) {
+                    it.realtimeDeparture?.toLong()
+                } else {
+                    it.scheduledDeparture?.toLong()
+                }
+            } ?: TICKER_DEFAULT_REFRESH_INTERVAL_MS_DEBUG
+            val delay = nextDepartureInMillis - System.currentTimeMillis()
+            refreshDelay.tryEmit(delay)
+            it
+        }
+    }
+
+}
+/*
 class StopDeparturesNetworkDataSource @Inject constructor(
     private val apolloClient: ApolloClient,
     @AppCoroutineScope appCoroutineScope: CoroutineScope
@@ -95,4 +170,4 @@ class StopDeparturesNetworkDataSource @Inject constructor(
     override fun reload() {
         networkRetryTrigger.tryEmit(networkRetryTrigger.value + 1)
     }
-}
+}*/

@@ -113,9 +113,14 @@ fun StopDisplayScreen(
                             // case: no departures
                             if (uiState.departures.isEmpty() || true /* FIXME DEBUG */) {
                                 item {
-                                    SelectionHeader(text = "No departures found. Switch route, or refresh")
-                                    Button(onClick = clickHandler::onRetryPressed) {
-                                        Icon(Icons.Default.Refresh, contentDescription = "Retry")
+                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                        SelectionHeader(text = "No departures found. Switch route, or refresh")
+                                        Button(onClick = clickHandler::onRetryPressed) {
+                                            Icon(
+                                                Icons.Default.Refresh,
+                                                contentDescription = "Retry"
+                                            )
+                                        }
                                     }
                                 }
                             } else {

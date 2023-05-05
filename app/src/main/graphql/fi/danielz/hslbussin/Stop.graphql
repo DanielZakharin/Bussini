@@ -1,7 +1,7 @@
 query Stop($stopId: String!, $patternId: String!) {
     stop(id: $stopId) {
         name
-        stopTimesForPattern(id: $patternId, numberOfDepartures: 100) {
+        stopTimesForPattern(id: $patternId, numberOfDepartures: 10) {
             serviceDay
             realtime
             realtimeDeparture

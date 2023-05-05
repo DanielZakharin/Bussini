@@ -5,21 +5,16 @@ sealed class NetworkStatus<T> {
 
     data class Success<T>(
         val responseBody: T
-    ): NetworkStatus<T>()
+    ): NetworkStatus<T>() {
+        override val body: T = responseBody
+    }
 
     data class Error<T>(
         val exception: Exception
-    ): NetworkStatus<T>()
-
-    // FIXME move inside classes, this is wonky
-    val body: T? = when (this) {
-        is Success<T> -> responseBody
-        else -> null
+    ): NetworkStatus<T>() {
+        override val error: Exception = exception
     }
 
-    // FIXME move inside classes, this is wonky
-    val error: Exception? = when (this) {
-        is Error<*> -> this.exception
-        else -> null
-    }
+    open val body: T? = null
+    open val error: Exception? = null
 }

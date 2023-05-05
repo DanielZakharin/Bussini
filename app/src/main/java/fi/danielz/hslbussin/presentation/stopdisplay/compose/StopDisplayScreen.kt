@@ -111,7 +111,7 @@ fun StopDisplayScreen(
                             }
 
                             // case: no departures
-                            if (uiState.departures.isEmpty() || true /* FIXME DEBUG */) {
+                            if (uiState.departures.isEmpty()) {
                                 item {
                                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                         SelectionHeader(text = "No departures found. Switch route, or refresh")

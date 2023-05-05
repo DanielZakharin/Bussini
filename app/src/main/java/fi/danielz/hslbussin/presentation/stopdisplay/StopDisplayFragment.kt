@@ -39,7 +39,7 @@ class StopDisplayFragment : Fragment() {
         }
 
         override fun onRetryPressed() {
-            TODO("Not yet implemented")
+            vm.reload()
         }
     }
 

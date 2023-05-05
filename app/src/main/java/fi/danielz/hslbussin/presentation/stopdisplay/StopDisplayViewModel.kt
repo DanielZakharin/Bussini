@@ -4,40 +4,30 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import fi.danielz.hslbussin.R
 import fi.danielz.hslbussin.StopQuery
 import fi.danielz.hslbussin.network.NetworkStatus
 import fi.danielz.hslbussin.presentation.stopdisplay.compose.StopDisplayScreenUIState
-import fi.danielz.hslbussin.presentation.stopdisplay.model.StopDisplayData
 import fi.danielz.hslbussin.presentation.stopdisplay.model.StopDeparturesDataSource
 import fi.danielz.hslbussin.presentation.stopdisplay.model.StopDeparturesPattern
 import fi.danielz.hslbussin.presentation.stopdisplay.model.StopSingleDepartureQueryData
+import fi.danielz.hslbussin.presentation.stopdisplay.model.departureTime
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.lang.Exception
 import javax.inject.Inject
 
 @HiltViewModel
 class StopDisplayViewModel @Inject constructor(
     application: Application,
-    val stopDeparturesDataSource: StopDeparturesDataSource
+    private val stopDeparturesDataSource: StopDeparturesDataSource
 ) :
     AndroidViewModel(application) {
 
     private lateinit var routenName: String
-    fun init(
-        stopId: String,
-        patternId: String,
-        routenName: String
-    ) {
-        this.routenName = routenName
-        stopDataPattern.tryEmit(StopDeparturesPattern(stopId, patternId))
-    }
 
-    private val stopDataPattern = MutableSharedFlow<StopDeparturesPattern>()
-    private val _departuresForStopAndPattern: Flow<NetworkStatus<StopQuery.Data>> =
+    private val stopDataPattern = MutableSharedFlow<StopDeparturesPattern>(replay = 1)
+    private val departuresForStopAndPattern: StateFlow<NetworkStatus<StopQuery.Data>> =
         stopDataPattern.flatMapConcat { pattern ->
             stopDeparturesDataSource.stopDataForPattern(pattern)
         }.stateIn(
@@ -52,14 +42,14 @@ class StopDisplayViewModel @Inject constructor(
             delay(6000L)
             emit(System.currentTimeMillis()) // unique emission each time
         }
-    }.stateIn(
+    }.shareIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000),
-        System.currentTimeMillis()
+        1
     )
 
     val uiState: Flow<StopDisplayScreenUIState> =
-        _departuresForStopAndPattern.map {
+        departuresForStopAndPattern.map {
             when (it) {
                 is NetworkStatus.InProgress -> StopDisplayScreenUIState.Loading()
                 is NetworkStatus.Error -> StopDisplayScreenUIState.Error(
@@ -73,4 +63,32 @@ class StopDisplayViewModel @Inject constructor(
                 }
             }
         }.distinctUntilChanged()
+
+    private val tickerAndData = tickerFlow.combine(departuresForStopAndPattern, ::Pair).shareIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        1
+    )
+
+    fun reload() = stopDeparturesDataSource.reload()
+    fun init(
+        stopId: String,
+        patternId: String,
+        routenName: String
+    ) {
+        this.routenName = routenName
+        stopDataPattern.tryEmit(StopDeparturesPattern(stopId, patternId))
+        viewModelScope.launch {
+            tickerAndData.collect { (currentTime, deps) ->
+                val dep =
+                    deps.body?.stop?.stopTimesForPattern?.firstOrNull()
+                        ?.let {
+                            it.departureTime
+                        } ?: return@collect
+                if (currentTime >= dep) {
+                    stopDeparturesDataSource.reload()
+                }
+            }
+        }
+    }
 }

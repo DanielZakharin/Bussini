@@ -17,6 +17,7 @@ fun millisToHoursMinutes(millis: Long): String {
     return if (hoursPart > 0L) {
         "${hoursPart}h ${minutesPart}min"
     } else {
-        "${minutesPart}min"
+        if (minutesPart <= 0) "< 1min" else
+            "${minutesPart}min"
     }
 }

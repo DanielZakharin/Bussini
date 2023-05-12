@@ -70,11 +70,19 @@ open class StopDeparturesNetworkDataSource @Inject constructor(
     private val apolloClient: ApolloClient
 ) : StopDeparturesDataSource {
 
+    private val numberOfDepartures = 10
+
     private lateinit var latestPattern: StopDeparturesPattern
     protected val patternSharedFlow = MutableSharedFlow<StopDeparturesPattern>(replay = 1)
     protected open val networkResponse: Flow<NetworkStatus<StopQuery.Data>> =
         patternSharedFlow.flatMapConcat { pattern ->
-            apolloClient.queryAsNetworkResponseFlow(StopQuery(pattern.stopId, pattern.patternId))
+            apolloClient.queryAsNetworkResponseFlow(
+                StopQuery(
+                    pattern.stopId,
+                    pattern.patternId,
+                    numberOfDepartures
+                )
+            )
         }
 
     final override fun stopDataForPattern(pattern: StopDeparturesPattern): Flow<NetworkStatus<StopQuery.Data>> {

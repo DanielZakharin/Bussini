@@ -53,12 +53,11 @@
         </activity>
 
         <!-- Complication -->
-        <!--
         <service
-            android:name=".complication.BussiniComplicationDataSource"
+            android:name=".complication.LegacyBussiniComplicationDataSource"
             android:exported="true"
             android:icon="@drawable/ic_launcher_foreground"
-            android:label="Complication TODO"
+            android:label="AAA Complication TODO"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
             <intent-filter>
                 <action android:name="android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST" />
@@ -67,7 +66,7 @@
             <meta-data
                 android:name="android.support.wearable.complications.SUPPORTED_TYPES"
                 android:value="SHORT_TEXT,LONG_TEXT" />
-
+            <!--
             When your complication data provider is active, UPDATE_PERIOD_SECONDS specifies how
             often you want the system to check for updates to the data. A zero value means you
             will manually trigger updates.
@@ -77,18 +76,12 @@
             If you do decide to use UPDATE_PERIOD_SECONDS, set the interval in the order of minutes.
             A good value might be 600 seconds (10 minutes) if you need updates pulled often.
             Also, remember that this is only a guidance for the system. Android Wear may update less
-            frequently.
-            -->
-        <!--
+            frequently. -->
             <meta-data
                 android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
-                android:value="60" />
+                android:value="0" /> <!-- we update the data manually with workers -->
         </service>
-<<<<<<< HEAD
-    -->
-=======
         <receiver android:name=".complication.UpdateRequestReceiver" />
->>>>>>> a116b5b (WIP timeline complication data source)
     </application>
 
 </manifest>

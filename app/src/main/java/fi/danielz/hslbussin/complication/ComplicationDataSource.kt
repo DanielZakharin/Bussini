@@ -11,12 +11,12 @@ import fi.danielz.hslbussin.preferences.PreferencesManager
 import fi.danielz.hslbussin.preferences.SharedPreferencesManager
 import fi.danielz.hslbussin.preferences.readRouteName
 import fi.danielz.hslbussin.preferences.readStopAndPattern
+import fi.danielz.hslbussin.presentation.stopdisplay.model.departureTime
 import fi.danielz.hslbussin.utils.getSharedPrefs
 import fi.danielz.hslbussin.utils.millisToHoursMinutes
 import okhttp3.OkHttpClient
 import timber.log.Timber
 import java.time.Instant
-
 
 // https://github.com/googlecodelabs/complications-data-source/blob/master/complete/src/main/java/com/example/android/wearable/complicationsdatasource/CustomComplicationDataSourceService.kt
 class BussiniComplicationDataSource : SuspendingTimelineComplicationDataSourceService() {
@@ -53,24 +53,15 @@ class BussiniComplicationDataSource : SuspendingTimelineComplicationDataSourceSe
 
         Timber.d("DEBUG $stopId $patternId $routeShortName")
 
-        val res = apolloClient.query(StopQuery(stopId, patternId))
+        val res = apolloClient.query(StopQuery(stopId, patternId, 1))
             .execute() // bit iffy with the apollo client here...
         Timber.d("Complication res ${res.data}")
-        val nextDeparture: Int = res.data?.stop?.stopTimesForPattern?.firstOrNull()?.let {
-            if (it.realtime == true) {
-                it.realtimeDeparture
-            } else {
-                it.scheduledDeparture
-            }
-        } ?: return null
+        val nextDeparture: Long =
+            res.data?.stop?.stopTimesForPattern?.firstOrNull()?.departureTime ?: return null
 
-        val departure = Instant.ofEpochMilli(nextDeparture.toLong())
+        val departure = Instant.ofEpochMilli(nextDeparture)
         val timelineEntries = res.data?.stop?.stopTimesForPattern?.asSequence()?.map {
-            if (it?.realtime == true) {
-                it.realtimeDeparture
-            } else {
-                it?.scheduledDeparture
-            }
+            it?.departureTime
         }?.filterNotNull()?.map {
             val formattedDepartureTime = millisToHoursMinutes(it.toLong())
             TimelineEntry(
@@ -86,7 +77,7 @@ class BussiniComplicationDataSource : SuspendingTimelineComplicationDataSourceSe
         }?.toList() ?: emptyList()
 
         val timeLine = ComplicationDataTimeline(
-            defaultComplicationData = buildComplication(
+            defaultComplicationData = buildDefaultBussiniComplication(
                 "$routeShortName",
                 departure,
                 request
@@ -100,71 +91,32 @@ class BussiniComplicationDataSource : SuspendingTimelineComplicationDataSourceSe
 
 }
 
-private fun buildComplication(
-    lineNumber: String,
-    departureTime: Instant,
-    complicationRequest: ComplicationRequest
-) =
-    when (complicationRequest.complicationType) {
-
-        ComplicationType.LONG_TEXT -> LongTextComplicationData.Builder(
-            text = TimeDifferenceComplicationText.Builder(
-                TimeDifferenceStyle.SHORT_DUAL_UNIT,
-                CountDownTimeReference(departureTime)
-            ).setText("Next $lineNumber in: ^1").build(),
-            contentDescription = PlainComplicationText
-                .Builder(text = "Long Text version of Number.").build()
-        )
-            //.setTapAction(complicationPendingIntent)
-            .build()
-
-        ComplicationType.SHORT_TEXT -> ShortTextComplicationData.Builder(
-            text = TimeDifferenceComplicationText.Builder(
-                TimeDifferenceStyle.SHORT_DUAL_UNIT,
-                CountDownTimeReference(departureTime)
-            ).setText("$lineNumber: ^1").build(),
-            contentDescription = PlainComplicationText
-                .Builder(text = "Short Text version of Number.").build()
-        )
-            //.setTapAction(complicationPendingIntent)
-            .build()
-
-        else -> {
-            Timber.w("Unexpected complication type ${complicationRequest.complicationType}")
-            ShortTextComplicationData.Builder(
-                text = TimeDifferenceComplicationText.Builder(
-                    TimeDifferenceStyle.SHORT_DUAL_UNIT,
-                    CountDownTimeReference(departureTime)
-                ).setText("$lineNumber: ^1").build(),
-                contentDescription = PlainComplicationText
-                    .Builder(text = "Short Text version of Number.").build()
-            )
-                //.setTapAction(complicationPendingIntent)
-                .build()
-        }
-    }
-
 
 fun debugTimeline(request: ComplicationRequest): ComplicationDataTimeline {
     var validityStart = Instant.now()
-    return listOf(1, 2, 3, 4, 5).map { num ->
-        val departure = Instant.now().plusSeconds((60 * num).toLong())
+    val timelineEntries = listOf(1, 2, 3, 4, 5).map { num ->
+        val departure = validityStart.plusSeconds(60)
         val validity = TimeInterval(validityStart, departure)
-        validityStart = validity.end
+        validityStart = departure
 
         TimelineEntry(
             validity,
-            buildComplication("$num", departure, request)
-        )
-    }.let { entries ->
-        Timber.d("New instance of debug timeline at ${System.currentTimeMillis()} \n Entries: $entries")
-        ComplicationDataTimeline(
-            defaultComplicationData = buildComplication(
-                "Def",
-                Instant.now().plusSeconds(120),
-                request
-            ),
-            entries
+            buildDefaultBussiniComplication("N $num", departure, request)
         )
     }
+
+    timelineEntries.let { entries ->
+        Timber.d(
+            "New instance of debug timeline at ${System.currentTimeMillis()} \n Entries:" +
+                    " ${entries.mapIndexed { i, e -> "\nTimelineEntry $i:\n  | Start: ${e.validity.start}\n  | End: ${e.validity.end}" }}"
+        )
+    }
+    return ComplicationDataTimeline(
+        defaultComplicationData = buildDefaultBussiniComplication(
+            "Def",
+            Instant.now().plusSeconds(50),
+            request
+        ),
+        timelineEntries
+    )
 }

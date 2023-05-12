@@ -85,18 +85,20 @@ class LegacyBussiniComplicationDataSource : SuspendingComplicationDataSourceServ
 
         if (stopId == null || patternId == null) return null
 
-        Timber.d("DEBUG $stopId $patternId $routeShortName")
-
         val res = apolloClient.queryAsNetworkResponse(StopQuery(stopId, patternId, 1))
 
-        if(res is NetworkStatus.Error || res.body == null) {
-            return ShortTextComplicationData.Builder(
-                text = PlainComplicationText.Builder("Failed to refresh").build(),
-                contentDescription = PlainComplicationText.Builder("Failed to refresh").build(),
-            ).build()
+        if(res is NetworkStatus.Error) {
+            Timber.e("Apollo request failed while updating complication", res.error)
+            // schedule a refresh attempt
+            scheduleComplicationRefreshWork(Duration.ofMinutes(1))
+            return buildErrorBussiniComplication(request)
+        } else if (res.body == null) {
+            Timber.w("Apollo request result has no body\n $res")
+            // schedule a refresh attempt
+            scheduleComplicationRefreshWork(Duration.ofMinutes(1))
+            return buildErrorBussiniComplication(request)
         }
 
-        Timber.d("Complication res ${res.body}")
         val nextDeparture =
             res.body!!.stop?.stopTimesForPattern?.firstOrNull()?.departureTime
                 ?: return null
@@ -105,18 +107,23 @@ class LegacyBussiniComplicationDataSource : SuspendingComplicationDataSourceServ
 
         // set up work manager to refresh data on the departure time + 30 secs, to compensate for delays
         val durationToDeparture = Duration.between(Instant.now(), departureInstant.plusSeconds(30L))
-        val complicationDataRefreshWorkRequest: WorkRequest =
-            OneTimeWorkRequestBuilder<ComplicationDataRefresherWorker>()
-                .setInitialDelay(durationToDeparture) // delay the request by the time difference to the next departure
-                .build()
-
-        WorkManager.getInstance(applicationContext).enqueue(complicationDataRefreshWorkRequest)
+        scheduleComplicationRefreshWork(durationToDeparture)
 
         return buildDefaultBussiniComplication(
             lineNumber = routeShortName,
             departureTime = departureInstant,
             complicationRequest = request
         )
+    }
+
+    private fun scheduleComplicationRefreshWork(delay: Duration) {
+        val complicationDataRefreshWorkRequest: WorkRequest =
+            OneTimeWorkRequestBuilder<ComplicationDataRefresherWorker>()
+                .setInitialDelay(delay)
+                .build()
+
+        WorkManager.getInstance(applicationContext).enqueue(complicationDataRefreshWorkRequest)
+
     }
 
 }

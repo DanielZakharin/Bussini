@@ -11,6 +11,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
+import fi.danielz.hslbussin.complication.requestComplicationUpdate
 import fi.danielz.hslbussin.preferences.PreferencesManager
 import fi.danielz.hslbussin.preferences.writeStop
 import fi.danielz.hslbussin.presentation.stopselection.compose.StopSelectionClickHandler
@@ -34,6 +35,8 @@ class StopSelectionFragment : Fragment() {
     private val clickHandler = object : StopSelectionClickHandler {
         override fun onStopSelectedClick(stopGtfsId: String) {
             prefs.writeStop(stopGtfsId)
+            // start showing complication as soon as we know what to show
+            requestComplicationUpdate(requireContext())
             findNavController().navigate(
                 StopSelectionFragmentDirections.actionStopSelectionFragmentToStopDisplayFragment()
             )

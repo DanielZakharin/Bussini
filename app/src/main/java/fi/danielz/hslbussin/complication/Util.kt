@@ -65,7 +65,10 @@ private fun buildPlainTextBussiniComplication(
             text = PlainComplicationText.Builder(text).build(),
             contentDescription = PlainComplicationText.Builder(text).build(),
         ).build()
-        else -> null
+        else -> {
+            Timber.w("Unsupported complication type ${complicationRequest.complicationType.name}")
+            null
+        }
     }
 
 fun buildErrorBussiniComplication(complicationRequest: ComplicationRequest) =

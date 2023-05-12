@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
+import fi.danielz.hslbussin.complication.requestComplicationUpdate
 import fi.danielz.hslbussin.preferences.PreferencesManager
 import fi.danielz.hslbussin.preferences.clearSavedPrefs
 import fi.danielz.hslbussin.preferences.readRouteName
@@ -34,6 +35,8 @@ class StopDisplayFragment : Fragment() {
     private val clickHandler = object : StopDisplayClickHandler {
         override fun onSwitchRoutePressed() {
             prefs.clearSavedPrefs()
+            // Show 'blank' complication, since we dont know what to show anymore
+            requestComplicationUpdate(requireContext())
             findNavController()
                 .navigate(StopDisplayFragmentDirections.actionStopDisplayFragmentToRouteSelectionFragment())
         }

@@ -68,15 +68,20 @@ class LegacyBussiniComplicationDataSource : SuspendingComplicationDataSourceServ
     )
 
     override suspend fun onComplicationRequest(request: ComplicationRequest): ComplicationData? {
+        Timber.d("Complication requested, type: ${request.complicationType.name}")
 
         val prefs: PreferencesManager = SharedPreferencesManager(
             getSharedPrefs()
         )
 
+
         val (stopId, patternId) = prefs.readStopAndPattern()
         val routeShortName = prefs.readRouteName()
 
-        if (stopId == null || patternId == null) return buildNoRouteBussiniComplication(request)
+        if (stopId == null || patternId == null) {
+            Timber.d("No route selected, return buildNoRouteBussiniComplication")
+            return buildNoRouteBussiniComplication(request)
+        }
 
         val res = apolloClient.queryAsNetworkResponse(StopQuery(stopId, patternId, 1))
 
@@ -94,7 +99,14 @@ class LegacyBussiniComplicationDataSource : SuspendingComplicationDataSourceServ
 
         val nextDeparture =
             res.body!!.stop?.stopTimesForPattern?.firstOrNull()?.departureTime
-                ?: return null
+
+        if (nextDeparture == null) {
+            Timber.d("No next departure found, returning error complication")
+            Timber.d("Pattern $patternId, stop $stopId")
+            // schedule an update in an hour
+            scheduleComplicationRefreshWork(Duration.ofHours(1))
+            return buildErrorBussiniComplication(request)
+        }
 
         val departureInstant = Instant.ofEpochMilli(nextDeparture)
 

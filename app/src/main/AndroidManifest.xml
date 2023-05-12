@@ -67,6 +67,7 @@
                 android:name="android.support.wearable.complications.SUPPORTED_TYPES"
                 android:value="SHORT_TEXT,LONG_TEXT" />
             <!--
+            DOCS say:
             When your complication data provider is active, UPDATE_PERIOD_SECONDS specifies how
             often you want the system to check for updates to the data. A zero value means you
             will manually trigger updates.
@@ -77,9 +78,11 @@
             A good value might be 600 seconds (10 minutes) if you need updates pulled often.
             Also, remember that this is only a guidance for the system. Android Wear may update less
             frequently. -->
+            <!-- we update the data manually with workers, but let the system refresh every once in a
+             while too, just to be sure nothing is stuck -->
             <meta-data
                 android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
-                android:value="0" /> <!-- we update the data manually with workers -->
+                android:value="36000" />
         </service>
         <receiver android:name=".complication.UpdateRequestReceiver" />
     </application>

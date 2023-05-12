@@ -48,3 +48,16 @@ internal fun buildDefaultBussiniComplication(
                 .build()
         }
     }
+
+fun buildErrorBussiniComplication(complicationRequest: ComplicationRequest) =
+    when (complicationRequest.complicationType) {
+        ComplicationType.SHORT_TEXT -> ShortTextComplicationData.Builder(
+            text = PlainComplicationText.Builder("Failed to refresh").build(),
+            contentDescription = PlainComplicationText.Builder("Failed to refresh").build(),
+        ).build()
+        ComplicationType.LONG_TEXT -> LongTextComplicationData.Builder(
+            text = PlainComplicationText.Builder("Failed to refresh").build(),
+            contentDescription = PlainComplicationText.Builder("Failed to refresh").build(),
+        ).build()
+        else -> null
+    }

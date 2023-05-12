@@ -1,6 +1,5 @@
 package fi.danielz.hslbussin.presentation.stopselection
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +13,7 @@ import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
 import fi.danielz.hslbussin.preferences.PreferencesManager
 import fi.danielz.hslbussin.preferences.writeStop
+import fi.danielz.hslbussin.presentation.stopselection.compose.StopSelectionClickHandler
 import fi.danielz.hslbussin.presentation.stopselection.compose.StopSelectionScreen
 import fi.danielz.hslbussin.presentation.stopselection.compose.StopSelectionScreenUIState
 import javax.inject.Inject
@@ -30,6 +30,20 @@ class StopSelectionFragment : Fragment() {
 
     @Inject
     lateinit var prefs: PreferencesManager
+
+    private val clickHandler = object : StopSelectionClickHandler {
+        override fun onStopSelectedClick(stopGtfsId: String) {
+            prefs.writeStop(stopGtfsId)
+            findNavController().navigate(
+                StopSelectionFragmentDirections.actionStopSelectionFragmentToStopDisplayFragment()
+            )
+        }
+
+        override fun onReloadClick() {
+            vm.reload()
+        }
+
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,15 +62,8 @@ class StopSelectionFragment : Fragment() {
                     vm.uiState.collectAsState(initial = StopSelectionScreenUIState.Loading())
                 StopSelectionScreen(
                     uiState = uiState.value,
-                    onBackPressed = {
-                        findNavController().popBackStack()
-                    }
-                ) { stopId ->
-                    prefs.writeStop(stopId)
-                    findNavController().navigate(
-                        StopSelectionFragmentDirections.actionStopSelectionFragmentToStopDisplayFragment()
-                    )
-                }
+                    clickHandler = clickHandler
+                )
             }
         }
     }

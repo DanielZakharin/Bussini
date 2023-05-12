@@ -49,15 +49,27 @@ internal fun buildDefaultBussiniComplication(
         }
     }
 
-fun buildErrorBussiniComplication(complicationRequest: ComplicationRequest) =
+private fun buildPlainTextBussiniComplication(
+    text: String,
+    complicationRequest: ComplicationRequest
+) =
     when (complicationRequest.complicationType) {
         ComplicationType.SHORT_TEXT -> ShortTextComplicationData.Builder(
-            text = PlainComplicationText.Builder("Failed to refresh").build(),
-            contentDescription = PlainComplicationText.Builder("Failed to refresh").build(),
+            text = PlainComplicationText.Builder(text).build(),
+            contentDescription = PlainComplicationText.Builder(text).build(),
         ).build()
         ComplicationType.LONG_TEXT -> LongTextComplicationData.Builder(
-            text = PlainComplicationText.Builder("Failed to refresh").build(),
-            contentDescription = PlainComplicationText.Builder("Failed to refresh").build(),
+            text = PlainComplicationText.Builder(text).build(),
+            contentDescription = PlainComplicationText.Builder(text).build(),
         ).build()
         else -> null
     }
+
+fun buildErrorBussiniComplication(complicationRequest: ComplicationRequest) =
+    buildPlainTextBussiniComplication(
+        "Failed to refresh",
+        complicationRequest
+    )
+
+fun buildNoRouteBussiniComplication(complicationRequest: ComplicationRequest) =
+    buildPlainTextBussiniComplication("No route selected", complicationRequest)

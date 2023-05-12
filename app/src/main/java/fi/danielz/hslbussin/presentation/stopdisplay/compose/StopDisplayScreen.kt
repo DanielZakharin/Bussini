@@ -8,9 +8,12 @@ import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.wear.compose.foundation.lazy.AutoCenteringParams
@@ -22,6 +25,7 @@ import fi.danielz.hslbussin.compose.ErrorWithRetryButton
 import fi.danielz.hslbussin.compose.SelectionHeader
 import fi.danielz.hslbussin.presentation.stopdisplay.model.StopSingleDepartureData
 import fi.danielz.hslbussin.presentation.theme.HSLBussinTheme
+import kotlinx.coroutines.flow.emptyFlow
 import com.apollographql.apollo3.api.Error as ApolloError
 
 
@@ -87,23 +91,26 @@ fun StopDisplayScreen(
                         content = {
                             // Bus route number and switch button
                             item {
-                                Row(
+                                Column(
                                     modifier = Modifier
-                                        .padding(2.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
+                                        .padding(2.dp)
+                                        .fillMaxWidth(),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
 
                                     ) {
                                     Button(
                                         onClick = clickHandler::onSwitchRoutePressed,
+                                        modifier = Modifier.fillMaxWidth(0.75F)
                                     ) {
-                                        Icon(
-                                            imageVector = Icons.Default.SwapHoriz,
-                                            contentDescription = "Switch route"
+                                        Text(
+                                            text = "Switch Line",
+                                            color = Color.White,
+                                            textAlign = TextAlign.Center
                                         )
                                     }
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
-                                        text = "Line:\n${uiState.routeTitle()}",
+                                        text = "Line: ${uiState.routeTitle()}",
                                         fontSize = 20.sp,
                                         color = Color.White
                                     )
@@ -115,6 +122,7 @@ fun StopDisplayScreen(
                                 item {
                                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                         SelectionHeader(text = "No departures found. Switch route, or refresh")
+                                        Spacer(modifier = Modifier.height(8.dp))
                                         Button(onClick = clickHandler::onRetryPressed) {
                                             Icon(
                                                 Icons.Default.Refresh,
@@ -152,4 +160,40 @@ fun StopDisplayScreen(
             }
         }
     }
+}
+
+@Composable
+@Preview
+private fun PreviewStopDisplayScren() {
+    val stopDepData = object : StopSingleDepartureData {
+        override val timeOfDeparture: Long
+            get() = 1L
+
+        override fun timeUntilDeparture(fromTimePoint: Long): Long {
+            return 1L
+        }
+
+        override fun displayText(fromTimePoint: Long): String {
+            return "15min"
+        }
+
+    }
+    val ticker = emptyFlow<Long>().collectAsState(initial = 0L)
+    val click = object : StopDisplayClickHandler {
+        override fun onSwitchRoutePressed() {
+
+        }
+
+        override fun onRetryPressed() {
+        }
+
+    }
+    StopDisplayScreen(
+        uiState = StopDisplayScreenUIState.Success(
+            departures = listOf(stopDepData),
+            "55"
+        ),
+        ticker = ticker,
+        clickHandler = click
+    )
 }

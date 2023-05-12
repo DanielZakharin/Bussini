@@ -14,8 +14,10 @@ import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material.CircularProgressIndicator
 import androidx.wear.compose.material.MaterialTheme
+import fi.danielz.hslbussin.compose.ErrorWithRetryButton
 import com.apollographql.apollo3.api.Error as ApolloError
 import fi.danielz.hslbussin.compose.IconRow
+import fi.danielz.hslbussin.compose.SelectionHeader
 import fi.danielz.hslbussin.compose.SelectionHeaderWithBackButton
 import fi.danielz.hslbussin.presentation.stopselection.model.StopData
 import fi.danielz.hslbussin.presentation.theme.HSLBussinTheme
@@ -23,34 +25,34 @@ import fi.danielz.hslbussin.presentation.theme.HSLBussinTheme
 sealed interface StopSelectionScreenUIState {
     val stops: List<StopData>
     val errors: List<ApolloError>
-    val title: String
 
     data class Success(
         override val stops: List<StopData>,
-        override val title: String
-    ): StopSelectionScreenUIState {
+    ) : StopSelectionScreenUIState {
         override val errors: List<ApolloError> = emptyList()
     }
 
     data class Error(
         override val errors: List<ApolloError>
-    ): StopSelectionScreenUIState {
-        override val title: String = ""
+    ) : StopSelectionScreenUIState {
         override val stops: List<StopData> = emptyList()
     }
 
-    class Loading: StopSelectionScreenUIState {
+    class Loading : StopSelectionScreenUIState {
         override val stops: List<StopData> = emptyList()
         override val errors: List<ApolloError> = emptyList()
-        override val title: String = ""
     }
+}
+
+interface StopSelectionClickHandler {
+    fun onStopSelectedClick(stopGtfsId: String)
+    fun onReloadClick()
 }
 
 @Composable
 fun StopSelectionScreen(
     uiState: StopSelectionScreenUIState,
-    onBackPressed: () -> Unit,
-    onStopSelectedPressed: (stopGtfsId: String) -> Unit,
+    clickHandler: StopSelectionClickHandler
 ) {
     HSLBussinTheme {
         Column(
@@ -66,16 +68,15 @@ fun StopSelectionScreen(
                         // add extra item for header
                         items(uiState.stops.size + 1) {
                             if (it == 0) {
-                                SelectionHeaderWithBackButton(
-                                    uiState.title,
-                                    onBackPressed
+                                SelectionHeader(
+                                    "Select Stop"
                                 )
                             } else {
                                 val adjustedIndex = it - 1
                                 val stop = uiState.stops[adjustedIndex]
                                 IconRow(
                                     item = stop,
-                                    onClick = { onStopSelectedPressed(stop.gtfsId) },
+                                    onClick = { clickHandler.onStopSelectedClick(stop.gtfsId) },
                                     text = { it.name },
                                     imageVector = Icons.Default.AirlineStops
                                 )
@@ -84,8 +85,7 @@ fun StopSelectionScreen(
                     }
                 }
                 is StopSelectionScreenUIState.Error -> {
-                    // TODO
-                    //ErrorBanner(errorState = errorState)
+                    ErrorWithRetryButton(onRetryClick = clickHandler::onReloadClick)
                 }
                 is StopSelectionScreenUIState.Loading -> {
                     Box(

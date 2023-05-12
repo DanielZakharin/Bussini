@@ -21,3 +21,9 @@ fun millisToHoursMinutes(millis: Long): String {
             "${minutesPart}min"
     }
 }
+
+fun String?.trimToNull(): String? {
+    return this?.trimEnd()?.takeIf {
+        it.isNotEmpty()
+    }
+}

@@ -1,6 +1,9 @@
 package fi.danielz.hslbussin.complication
 
+import android.content.ComponentName
+import android.content.Context
 import androidx.wear.watchface.complications.data.*
+import androidx.wear.watchface.complications.datasource.ComplicationDataSourceUpdateRequester
 import androidx.wear.watchface.complications.datasource.ComplicationRequest
 import timber.log.Timber
 import java.time.Instant
@@ -73,3 +76,14 @@ fun buildErrorBussiniComplication(complicationRequest: ComplicationRequest) =
 
 fun buildNoRouteBussiniComplication(complicationRequest: ComplicationRequest) =
     buildPlainTextBussiniComplication("No route selected", complicationRequest)
+
+fun requestComplicationUpdate(context: Context) {
+    val updateRequester = ComplicationDataSourceUpdateRequester.create(
+        context,
+        ComponentName(context, LegacyBussiniComplicationDataSource::class.java)
+    )
+
+    // we dont know the complication ID outside data source
+    // update any complication using LegacyBussiniComplicationDataSource
+    updateRequester.requestUpdateAll()
+}

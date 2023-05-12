@@ -35,14 +35,7 @@ class ComplicationDataRefresherWorker(
     override fun doWork(): Result {
         Timber.i("ComplicationDataRefresherWorker working to refresh complication data")
         return try {
-            val updateReuqester = ComplicationDataSourceUpdateRequester.create(
-                appContext,
-                ComponentName(appContext, LegacyBussiniComplicationDataSource::class.java)
-            )
-
-            // we dont know the complication ID outside data source
-            // update any complication using LegacyBussiniComplicationDataSource
-            updateReuqester.requestUpdateAll()
+            requestComplicationUpdate(appContext)
             Result.success()
         } catch (e: Exception) {
             Result.failure(Data.Builder().putAll(mapOf(ERROR_KEY to e)).build())

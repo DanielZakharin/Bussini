@@ -83,7 +83,7 @@ class LegacyBussiniComplicationDataSource : SuspendingComplicationDataSourceServ
         val (stopId, patternId) = prefs.readStopAndPattern()
         val routeShortName = prefs.readRouteName()
 
-        if (stopId == null || patternId == null) return null
+        if (stopId == null || patternId == null) return buildNoRouteBussiniComplication(request)
 
         val res = apolloClient.queryAsNetworkResponse(StopQuery(stopId, patternId, 1))
 

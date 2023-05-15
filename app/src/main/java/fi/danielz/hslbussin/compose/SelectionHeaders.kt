@@ -24,44 +24,8 @@ fun SelectionHeader(
     Text(text = text, textAlign = TextAlign.Start)
 }
 
-
-@Composable
-fun SelectionHeaderWithBackButton(
-    text: String,
-    onBackPressed: () -> Unit
-) {
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
-    ) {
-        Row(
-            modifier = Modifier.height(IntrinsicSize.Min),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Button(
-                onClick = { onBackPressed() },
-                modifier = Modifier
-                    .padding(0.dp)
-                    .height(30.dp)
-                    .width(30.dp)
-                    .background(Color.Transparent),
-                shape = RoundedCornerShape(8.dp),
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Back Button",
-                    tint = Color.White
-                )
-            }
-            Spacer(modifier = Modifier.width(8.dp))
-            SelectionHeader(text = text)
-        }
-    }
-}
-
 @Preview
 @Composable
-fun PreviewSelectionHeaderWithBackButton() {
-    SelectionHeaderWithBackButton("This is header", {})
+fun PreviewSelectionHeader() {
+    SelectionHeader("This is header")
 }

@@ -15,10 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material.CircularProgressIndicator
 import androidx.wear.compose.material.MaterialTheme
-import fi.danielz.hslbussin.compose.ErrorBanner
-import fi.danielz.hslbussin.compose.ErrorWithRetryButton
-import fi.danielz.hslbussin.compose.IconRow
-import fi.danielz.hslbussin.compose.SelectionHeaderWithBackButton
+import fi.danielz.hslbussin.compose.*
 import fi.danielz.hslbussin.presentation.routeselection.compose.RouteSelectionScreenUIState
 import fi.danielz.hslbussin.presentation.theme.HSLBussinTheme
 
@@ -65,10 +62,7 @@ fun DirectionSelectionScreen(
                         }?.directions ?: emptyList()
                         // add extra item for header
                         item {
-                            SelectionHeaderWithBackButton(
-                                "Select direction",
-                                clickHandler::onBackPressed
-                            )
+                            SelectionHeader("Select direction")
                         }
                         items(selectedRouteDirections.size) { index ->
                             IconRow(

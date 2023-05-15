@@ -18,7 +18,6 @@ import fi.danielz.hslbussin.compose.ErrorWithRetryButton
 import com.apollographql.apollo3.api.Error as ApolloError
 import fi.danielz.hslbussin.compose.IconRow
 import fi.danielz.hslbussin.compose.SelectionHeader
-import fi.danielz.hslbussin.compose.SelectionHeaderWithBackButton
 import fi.danielz.hslbussin.presentation.stopselection.model.StopData
 import fi.danielz.hslbussin.presentation.theme.HSLBussinTheme
 

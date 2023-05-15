@@ -15,7 +15,9 @@
             app:exitAnim="@anim/nav_default_exit_anim" />
         <action
             android:id="@+id/action_route_selection_fragment_to_stopDisplayFragment"
-            app:destination="@id/stopDisplayFragment" />
+            app:destination="@id/stopDisplayFragment"
+            app:popUpTo="@id/route_selection_fragment"
+            app:popUpToInclusive="true"/>
     </fragment>
 
     <fragment
@@ -45,16 +47,18 @@
             app:destination="@id/stopDisplayFragment"
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim"
-            app:popUpTo="@id/route_selection_fragment" />
+            app:popUpTo="@id/route_selection_fragment"
+            app:popUpToInclusive="true"/>
     </fragment>
     <fragment
         android:id="@+id/stopDisplayFragment"
         android:name="fi.danielz.hslbussin.presentation.stopdisplay.StopDisplayFragment"
-        android:label="StopDisplayFragment"
-        tools:layout="@layout/fragment_stop_display" >
+        android:label="StopDisplayFragment" >
         <action
             android:id="@+id/action_stopDisplayFragment_to_route_selection_fragment"
-            app:destination="@id/route_selection_fragment" />
+            app:destination="@id/route_selection_fragment"
+            app:popUpTo="@id/stopDisplayFragment"
+            app:popUpToInclusive="true"/>
     </fragment>
 
 

@@ -1,6 +1,7 @@
 package fi.danielz.bussini.utils
 
 import android.content.Context
+import android.content.SharedPreferences
 import java.time.Duration
 
 /**
@@ -8,7 +9,8 @@ import java.time.Duration
  */
 const val SHARED_PREFS_NAME = "BUSSINI_SHARED_PREFS"
 
-fun Context.getSharedPrefs() = getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE)
+fun Context.getSharedPrefs(): SharedPreferences =
+    getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE)
 
 fun millisToHoursMinutes(millis: Long): String {
     val duration = Duration.ofMillis(millis)

@@ -15,11 +15,11 @@ import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material.CircularProgressIndicator
 import androidx.wear.compose.material.MaterialTheme
 import fi.danielz.bussini.compose.ErrorWithRetryButton
-import com.apollographql.apollo3.api.Error as ApolloError
 import fi.danielz.bussini.compose.IconRow
 import fi.danielz.bussini.compose.SelectionHeader
 import fi.danielz.bussini.presentation.stopselection.model.StopData
 import fi.danielz.bussini.presentation.theme.BussiniTheme
+import com.apollographql.apollo3.api.Error as ApolloError
 
 sealed interface StopSelectionScreenUIState {
     val stops: List<StopData>
@@ -65,21 +65,19 @@ fun StopSelectionScreen(
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         // add extra item for header
-                        items(uiState.stops.size + 1) {
-                            if (it == 0) {
-                                SelectionHeader(
-                                    "Select Stop"
-                                )
-                            } else {
-                                val adjustedIndex = it - 1
-                                val stop = uiState.stops[adjustedIndex]
-                                IconRow(
-                                    item = stop,
-                                    onClick = { clickHandler.onStopSelectedClick(stop.gtfsId) },
-                                    text = { it.name },
-                                    imageVector = Icons.Default.AirlineStops
-                                )
-                            }
+                        item {
+                            SelectionHeader(
+                                "Select Stop"
+                            )
+                        }
+                        items(uiState.stops.size) { index ->
+                            val stop = uiState.stops[index]
+                            IconRow(
+                                item = stop,
+                                onClick = { clickHandler.onStopSelectedClick(stop.gtfsId) },
+                                text = { it.name },
+                                imageVector = Icons.Default.AirlineStops
+                            )
                         }
                     }
                 }

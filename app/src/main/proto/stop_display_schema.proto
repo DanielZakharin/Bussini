@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+option java_package = "fi.danielz.bussini";
+option java_multiple_files = true;
+
+message StopDisplayData {
+  string stopName = 1;
+  string stopGtfsId = 2;
+  string patternGtfsId = 3;
+}

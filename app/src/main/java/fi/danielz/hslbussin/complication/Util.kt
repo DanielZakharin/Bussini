@@ -2,9 +2,11 @@ package fi.danielz.hslbussin.complication
 
 import android.content.ComponentName
 import android.content.Context
+import android.graphics.drawable.Icon
 import androidx.wear.watchface.complications.data.*
 import androidx.wear.watchface.complications.datasource.ComplicationDataSourceUpdateRequester
 import androidx.wear.watchface.complications.datasource.ComplicationRequest
+import fi.danielz.hslbussin.R
 import timber.log.Timber
 import java.time.Instant
 
@@ -19,22 +21,24 @@ internal fun buildDefaultBussiniComplication(
             text = TimeDifferenceComplicationText.Builder(
                 TimeDifferenceStyle.SHORT_DUAL_UNIT,
                 CountDownTimeReference(departureTime)
-            ).setText("Next $lineNumber in: ^1").build(),
+            ).setDisplayAsNow(false).setText("Next $lineNumber in: ^1").build(),
             contentDescription = PlainComplicationText.Builder(text = "Long Text version of Number.")
                 .build()
+        ).setMonochromaticImage(
+            monochromaticAppIcon()
         )
-            //.setTapAction(complicationPendingIntent)
             .build()
 
         ComplicationType.SHORT_TEXT -> ShortTextComplicationData.Builder(
             text = TimeDifferenceComplicationText.Builder(
                 TimeDifferenceStyle.SHORT_DUAL_UNIT,
                 CountDownTimeReference(departureTime)
-            ).setText("$lineNumber: ^1").build(),
+            ).setDisplayAsNow(false).setText("$lineNumber in ^1").build(),
             contentDescription = PlainComplicationText.Builder(text = "Short Text version of Number.")
                 .build()
+        ).setMonochromaticImage(
+            monochromaticAppIcon()
         )
-            //.setTapAction(complicationPendingIntent)
             .build()
 
         else -> {
@@ -43,14 +47,19 @@ internal fun buildDefaultBussiniComplication(
                 text = TimeDifferenceComplicationText.Builder(
                     TimeDifferenceStyle.SHORT_DUAL_UNIT,
                     CountDownTimeReference(departureTime)
-                ).setText("U $lineNumber: ^1").build(),
+                ).setDisplayAsNow(false).setText("$lineNumber in ^1").build(),
                 contentDescription = PlainComplicationText.Builder(text = "Short Text version of Number.")
                     .build()
+            ).setMonochromaticImage(
+                monochromaticAppIcon()
             )
-                //.setTapAction(complicationPendingIntent)
                 .build()
         }
     }
+
+private fun monochromaticAppIcon() = MonochromaticImage.Builder(
+    Icon.createWithResource("fi.danielz.hslbussin", R.drawable.ic_bus_default)
+).build()
 
 private fun buildPlainTextBussiniComplication(
     text: String,
@@ -60,10 +69,14 @@ private fun buildPlainTextBussiniComplication(
         ComplicationType.SHORT_TEXT -> ShortTextComplicationData.Builder(
             text = PlainComplicationText.Builder(text).build(),
             contentDescription = PlainComplicationText.Builder(text).build(),
+        ).setMonochromaticImage(
+            monochromaticAppIcon()
         ).build()
         ComplicationType.LONG_TEXT -> LongTextComplicationData.Builder(
             text = PlainComplicationText.Builder(text).build(),
             contentDescription = PlainComplicationText.Builder(text).build(),
+        ).setMonochromaticImage(
+            monochromaticAppIcon()
         ).build()
         else -> {
             Timber.w("Unsupported complication type ${complicationRequest.complicationType.name}")

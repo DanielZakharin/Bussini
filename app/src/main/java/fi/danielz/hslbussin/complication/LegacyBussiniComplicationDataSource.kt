@@ -1,9 +1,6 @@
 package fi.danielz.hslbussin.complication
 
-import android.content.ComponentName
-import android.content.Context
 import androidx.wear.watchface.complications.data.*
-import androidx.wear.watchface.complications.datasource.ComplicationDataSourceUpdateRequester
 import androidx.wear.watchface.complications.datasource.ComplicationRequest
 import androidx.wear.watchface.complications.datasource.SuspendingComplicationDataSourceService
 import androidx.work.*
@@ -27,26 +24,6 @@ import java.time.Instant
 import java.util.concurrent.TimeUnit
 
 
-class ComplicationDataRefresherWorker(
-    private val appContext: Context,
-    workerParams: WorkerParameters
-) :
-    Worker(appContext, workerParams) {
-    override fun doWork(): Result {
-        Timber.i("ComplicationDataRefresherWorker working to refresh complication data")
-        return try {
-            requestComplicationUpdate(appContext)
-            Result.success()
-        } catch (e: Exception) {
-            Result.failure(Data.Builder().putAll(mapOf(ERROR_KEY to e)).build())
-        }
-    }
-
-    companion object {
-        const val ERROR_KEY = "ComplicationDataRefresherWorker_ERROR_KEY"
-    }
-}
-
 /**
  * Would be nice to use timeline data source, but to ensure compatibility, use just [SuspendingComplicationDataSourceService]
  * Sets a timed task for WorkManager inside onComplicationRequest to refresh data once its too old
@@ -61,11 +38,12 @@ class LegacyBussiniComplicationDataSource : SuspendingComplicationDataSourceServ
         .addHttpHeader("digitransit-subscription-key", BuildConfig.API_KEY)
         .build()
 
-    override fun getPreviewData(type: ComplicationType): ComplicationData = buildDefaultBussiniComplication(
-        "123",
-        Instant.now(),
-        ComplicationRequest(-1, type) // TODO fix jank
-    )
+    override fun getPreviewData(type: ComplicationType): ComplicationData =
+        buildDefaultBussiniComplication(
+            "123",
+            Instant.now(),
+            ComplicationRequest(-1, type) // TODO fix jank
+        )
 
     override suspend fun onComplicationRequest(request: ComplicationRequest): ComplicationData? {
         Timber.d("Complication requested, type: ${request.complicationType.name}")
@@ -85,15 +63,15 @@ class LegacyBussiniComplicationDataSource : SuspendingComplicationDataSourceServ
 
         val res = apolloClient.queryAsNetworkResponse(StopQuery(stopId, patternId, 1))
 
-        if(res is NetworkStatus.Error) {
+        if (res is NetworkStatus.Error) {
             Timber.e("Apollo request failed while updating complication", res.error)
             // schedule a refresh attempt
-            scheduleComplicationRefreshWork(Duration.ofMinutes(1))
+            scheduleComplicationRefreshWork(applicationContext, Duration.ofMinutes(1))
             return buildErrorBussiniComplication(request)
         } else if (res.body == null) {
             Timber.w("Apollo request result has no body\n $res")
             // schedule a refresh attempt
-            scheduleComplicationRefreshWork(Duration.ofMinutes(1))
+            scheduleComplicationRefreshWork(applicationContext, Duration.ofMinutes(1))
             return buildErrorBussiniComplication(request)
         }
 
@@ -104,7 +82,7 @@ class LegacyBussiniComplicationDataSource : SuspendingComplicationDataSourceServ
             Timber.d("No next departure found, returning error complication")
             Timber.d("Pattern $patternId, stop $stopId")
             // schedule an update in an hour
-            scheduleComplicationRefreshWork(Duration.ofHours(1))
+            scheduleComplicationRefreshWork(applicationContext, Duration.ofHours(1))
             return buildErrorBussiniComplication(request)
         }
 
@@ -112,23 +90,13 @@ class LegacyBussiniComplicationDataSource : SuspendingComplicationDataSourceServ
 
         // set up work manager to refresh data on the departure time + 30 secs, to compensate for delays
         val durationToDeparture = Duration.between(Instant.now(), departureInstant.plusSeconds(30L))
-        scheduleComplicationRefreshWork(durationToDeparture)
+        scheduleComplicationRefreshWork(applicationContext, durationToDeparture)
 
         return buildDefaultBussiniComplication(
             lineNumber = routeShortName,
             departureTime = departureInstant,
             complicationRequest = request
         )
-    }
-
-    private fun scheduleComplicationRefreshWork(delay: Duration) {
-        val complicationDataRefreshWorkRequest: WorkRequest =
-            OneTimeWorkRequestBuilder<ComplicationDataRefresherWorker>()
-                .setInitialDelay(delay)
-                .build()
-
-        WorkManager.getInstance(applicationContext).enqueue(complicationDataRefreshWorkRequest)
-
     }
 
 }

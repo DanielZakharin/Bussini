@@ -25,7 +25,7 @@ import fi.danielz.hslbussin.R
 fun ErrorWithRetryButton(errorText: String = "An error has occured! Please try again in a moment.", onRetryClick: () -> Unit) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Image(
-            painter = painterResource(id = R.drawable.bus_error),
+            painter = painterResource(id = R.drawable.ic_bus_error),
             contentDescription = "Error Icon",
             contentScale = ContentScale.FillBounds,
             colorFilter = ColorFilter.tint(color = Color.White),

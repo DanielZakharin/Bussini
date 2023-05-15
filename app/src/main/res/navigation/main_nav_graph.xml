@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/route_selection_fragment"
-        android:name="fi.danielz.hslbussin.presentation.routeselection.RouteSelectionFragment">
+        android:name="fi.danielz.bussini.presentation.routeselection.RouteSelectionFragment">
         <action
             android:id="@+id/to_direction_selection"
             app:destination="@id/direction_selection_fragment"
@@ -22,7 +22,7 @@
 
     <fragment
         android:id="@+id/direction_selection_fragment"
-        android:name="fi.danielz.hslbussin.presentation.directionselection.DirectionSelectionFragment">
+        android:name="fi.danielz.bussini.presentation.directionselection.DirectionSelectionFragment">
         <argument
             android:name="selectedRouteId"
             app:argType="string" />
@@ -35,7 +35,7 @@
 
     <fragment
         android:id="@+id/stop_selection_fragment"
-        android:name="fi.danielz.hslbussin.presentation.stopselection.StopSelectionFragment">
+        android:name="fi.danielz.bussini.presentation.stopselection.StopSelectionFragment">
         <argument
             android:name="routeId"
             app:argType="string" />
@@ -52,7 +52,7 @@
     </fragment>
     <fragment
         android:id="@+id/stopDisplayFragment"
-        android:name="fi.danielz.hslbussin.presentation.stopdisplay.StopDisplayFragment"
+        android:name="fi.danielz.bussini.presentation.stopdisplay.StopDisplayFragment"
         android:label="StopDisplayFragment" >
         <action
             android:id="@+id/action_stopDisplayFragment_to_route_selection_fragment"

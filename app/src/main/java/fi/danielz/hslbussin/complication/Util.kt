@@ -57,13 +57,14 @@ internal fun buildDefaultBussiniComplication(
         }
     }
 
-private fun monochromaticAppIcon() = MonochromaticImage.Builder(
-    Icon.createWithResource("fi.danielz.hslbussin", R.drawable.ic_bus_default)
+private fun monochromaticAppIcon(iconRes: Int = R.drawable.ic_bus_default) = MonochromaticImage.Builder(
+    Icon.createWithResource("fi.danielz.hslbussin", iconRes)
 ).build()
 
 private fun buildPlainTextBussiniComplication(
     text: String,
-    complicationRequest: ComplicationRequest
+    complicationRequest: ComplicationRequest,
+    icon: () -> MonochromaticImage = { monochromaticAppIcon() }
 ) =
     when (complicationRequest.complicationType) {
         ComplicationType.SHORT_TEXT -> ShortTextComplicationData.Builder(
@@ -88,7 +89,9 @@ fun buildErrorBussiniComplication(complicationRequest: ComplicationRequest) =
     buildPlainTextBussiniComplication(
         "Failed to refresh",
         complicationRequest
-    )
+    ) {
+        monochromaticAppIcon(R.drawable.ic_bus_error)
+    }
 
 fun buildNoRouteBussiniComplication(complicationRequest: ComplicationRequest) =
     buildPlainTextBussiniComplication("No route selected", complicationRequest)

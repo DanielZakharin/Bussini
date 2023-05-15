@@ -14,11 +14,11 @@ def localProperties = new Properties()
 localProperties.load(new FileInputStream(localPropertiesFile))
 
 android {
-    namespace 'fi.danielz.hslbussin'
+    namespace 'fi.danielz.bussini'
     compileSdk 33
 
     defaultConfig {
-        applicationId 'fi.danielz.hslbussin'
+        applicationId 'fi.danielz.bussini'
         minSdk 30
         targetSdk 33
         versionCode 1
@@ -147,7 +147,7 @@ apollo {
 
     service("service") {
 
-        packageName.set("fi.danielz.hslbussin")
+        packageName.set("fi.danielz.bussini")
         generateKotlinModels.set(true)
     }
 

@@ -21,11 +21,11 @@ class RouteSelectionViewModel @Inject constructor(
 
     val routeSelectionUIState =
         res.map {
-            when (it) {
+            when (val status = it) {
 
                 is NetworkStatus.Success -> RouteSelectionScreenUIState.Success(
-                    routes = it.responseBody.routes?.filterNotNull()?.map {
-                        RoutesQueryData(it)
+                    routes = status.responseBody.routes?.filterNotNull()?.map { route ->
+                        RoutesQueryData(route)
                     } ?: emptyList()
                 )
                 is NetworkStatus.Error -> RouteSelectionScreenUIState.Error(

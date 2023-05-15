@@ -14,7 +14,6 @@ import fi.danielz.bussini.presentation.stopdisplay.model.departureTime
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import java.lang.Exception
 import javax.inject.Inject
 
 @HiltViewModel
@@ -53,10 +52,10 @@ class StopDisplayViewModel @Inject constructor(
             when (it) {
                 is NetworkStatus.InProgress -> StopDisplayScreenUIState.Loading()
                 is NetworkStatus.Error -> StopDisplayScreenUIState.Error(
-                    it.error ?: Exception("No exception given...")
+                    it.error
                 )
                 is NetworkStatus.Success -> {
-                    val deps = it.body?.stop?.stopTimesForPattern?.mapNotNull { stopTime ->
+                    val deps = it.body.stop?.stopTimesForPattern?.mapNotNull { stopTime ->
                         stopTime?.let(::StopSingleDepartureQueryData)
                     } ?: emptyList()
                     StopDisplayScreenUIState.Success(deps, routenName)
@@ -81,10 +80,8 @@ class StopDisplayViewModel @Inject constructor(
         viewModelScope.launch {
             tickerAndData.collect { (currentTime, deps) ->
                 val dep =
-                    deps.body?.stop?.stopTimesForPattern?.firstOrNull()
-                        ?.let {
-                            it.departureTime
-                        } ?: return@collect
+                    deps.body?.stop?.stopTimesForPattern?.firstOrNull()?.departureTime
+                        ?: return@collect
                 if (currentTime >= dep) {
                     stopDeparturesDataSource.reload()
                 }

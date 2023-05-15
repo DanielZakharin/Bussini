@@ -5,13 +5,13 @@ sealed class NetworkStatus<T> {
 
     data class Success<T>(
         val responseBody: T
-    ): NetworkStatus<T>() {
+    ) : NetworkStatus<T>() {
         override val body: T = responseBody
     }
 
     data class Error<T>(
         val exception: Exception
-    ): NetworkStatus<T>() {
+    ) : NetworkStatus<T>() {
         override val error: Exception = exception
     }
 

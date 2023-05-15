@@ -13,7 +13,7 @@ import fi.danielz.bussini.presentation.stopdisplay.model.StopSingleDepartureData
 
 
 /**
- * @param a state that updates with the current system time continously. Used to update time remaining text
+ * @param ticker state that updates with the current system time continously. Used to update time remaining text
 TODO style this element
  */
 @Composable

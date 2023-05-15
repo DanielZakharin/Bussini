@@ -2,11 +2,11 @@ package fi.danielz.bussini.presentation.stopselection.model
 
 import com.apollographql.apollo3.ApolloClient
 import fi.danielz.bussini.PatternQuery
-import javax.inject.Inject
 import fi.danielz.bussini.network.NetworkStatus
 import fi.danielz.bussini.network.queryAsNetworkResponseFlow
 import fi.danielz.bussini.presentation.shared.ReloadableDataSource
 import kotlinx.coroutines.flow.*
+import javax.inject.Inject
 
 
 /**

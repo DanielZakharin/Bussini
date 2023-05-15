@@ -50,5 +50,6 @@ class StopSelectionViewModel @Inject constructor(private val stopsDataSource: St
     fun setPatternGtfsId(patternGtfsId: String) {
         this.patternGtfsId.value = patternGtfsId
     }
+
     fun reload() = stopsDataSource.reload()
 }

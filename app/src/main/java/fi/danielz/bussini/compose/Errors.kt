@@ -22,14 +22,19 @@ import androidx.compose.ui.unit.dp
 import fi.danielz.bussini.R
 
 @Composable
-fun ErrorWithRetryButton(errorText: String = "An error has occured! Please try again in a moment.", onRetryClick: () -> Unit) {
+fun ErrorWithRetryButton(
+    errorText: String = "An error has occured! Please try again in a moment.",
+    onRetryClick: () -> Unit
+) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Image(
             painter = painterResource(id = R.drawable.ic_bus_error),
             contentDescription = "Error Icon",
             contentScale = ContentScale.FillBounds,
             colorFilter = ColorFilter.tint(color = Color.White),
-            modifier = Modifier.height(60.dp).width(60.dp)
+            modifier = Modifier
+                .height(60.dp)
+                .width(60.dp)
         )
         Text(
             text = errorText,

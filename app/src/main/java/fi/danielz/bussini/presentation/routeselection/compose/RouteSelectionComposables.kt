@@ -1,8 +1,5 @@
-@file:OptIn(ExperimentalAnimationApi::class)
-
 package fi.danielz.bussini.presentation.routeselection.compose
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons

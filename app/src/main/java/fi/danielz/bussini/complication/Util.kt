@@ -6,9 +6,9 @@ import android.graphics.drawable.Icon
 import androidx.wear.watchface.complications.data.*
 import androidx.wear.watchface.complications.datasource.ComplicationDataSourceUpdateRequester
 import androidx.wear.watchface.complications.datasource.ComplicationRequest
+import fi.danielz.bussini.R
 import timber.log.Timber
 import java.time.Instant
-import fi.danielz.bussini.R
 
 internal fun buildCountdownComplication(
     lineNumber: String,

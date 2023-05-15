@@ -28,7 +28,9 @@ fun PreferencesManager.writeStop(stopGtfsId: String) {
  * Convenience function to read both stop and direction at once
  */
 fun PreferencesManager.readStopAndPattern(): Pair<String?, String?> {
-    return readString(SELECTED_STOP_GTFSID_KEY).trimToNull() to readString(SELECTED_PATTERN_GTFSID_KEY).trimToNull()
+    return readString(SELECTED_STOP_GTFSID_KEY).trimToNull() to readString(
+        SELECTED_PATTERN_GTFSID_KEY
+    ).trimToNull()
 }
 
 fun PreferencesManager.readRouteName(): String = readString(SELECTED_ROUTE_ID_KEY) ?: ""

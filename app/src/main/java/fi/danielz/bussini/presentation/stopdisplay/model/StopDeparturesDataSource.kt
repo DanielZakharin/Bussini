@@ -5,11 +5,10 @@ import fi.danielz.bussini.StopQuery
 import fi.danielz.bussini.network.NetworkStatus
 import fi.danielz.bussini.network.queryAsNetworkResponseFlow
 import fi.danielz.bussini.utils.millisToHoursMinutes
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.flatMapConcat
 import javax.inject.Inject
-
-const val TICKER_DEFAULT_REFRESH_INTERVAL_MS = 30000L // five minutes
-const val TICKER_DEFAULT_REFRESH_INTERVAL_MS_DEBUG = 300L // three seconds
 
 val StopQuery.StopTimesForPattern.departureTime: Long
     get() {
@@ -69,7 +68,7 @@ open class StopDeparturesNetworkDataSource @Inject constructor(
     private val numberOfDepartures = 10
 
     private lateinit var latestPattern: StopDeparturesPattern
-    protected val patternSharedFlow = MutableSharedFlow<StopDeparturesPattern>(replay = 1)
+    private val patternSharedFlow = MutableSharedFlow<StopDeparturesPattern>(replay = 1)
     protected open val networkResponse: Flow<NetworkStatus<StopQuery.Data>> =
         patternSharedFlow.flatMapConcat { pattern ->
             apolloClient.queryAsNetworkResponseFlow(

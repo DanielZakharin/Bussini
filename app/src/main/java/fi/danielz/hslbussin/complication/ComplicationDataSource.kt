@@ -77,7 +77,7 @@ class BussiniComplicationDataSource : SuspendingTimelineComplicationDataSourceSe
         }?.toList() ?: emptyList()
 
         val timeLine = ComplicationDataTimeline(
-            defaultComplicationData = buildDefaultBussiniComplication(
+            defaultComplicationData = buildCountdownComplication(
                 "$routeShortName",
                 departure,
                 request
@@ -101,7 +101,7 @@ fun debugTimeline(request: ComplicationRequest): ComplicationDataTimeline {
 
         TimelineEntry(
             validity,
-            buildDefaultBussiniComplication("N $num", departure, request)
+            buildCountdownComplication("N $num", departure, request)
         )
     }
 
@@ -112,7 +112,7 @@ fun debugTimeline(request: ComplicationRequest): ComplicationDataTimeline {
         )
     }
     return ComplicationDataTimeline(
-        defaultComplicationData = buildDefaultBussiniComplication(
+        defaultComplicationData = buildCountdownComplication(
             "Def",
             Instant.now().plusSeconds(50),
             request

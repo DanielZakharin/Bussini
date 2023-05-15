@@ -37,21 +37,6 @@
             android:name="com.google.android.wearable.standalone"
             android:value="true" />
 
-        <activity
-            android:name=".presentation.routeselection.RouteSelectionFragment"
-            android:exported="true"
-            android:theme="@android:style/Theme.DeviceDefault">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
-        </activity>
-
         <!-- Complication -->
         <service
             android:name=".complication.LegacyBussiniComplicationDataSource"
@@ -84,7 +69,6 @@
                 android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
                 android:value="36000" />
         </service>
-        <receiver android:name=".complication.UpdateRequestReceiver" />
     </application>
 
 </manifest>

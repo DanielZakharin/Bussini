@@ -33,9 +33,11 @@ internal fun buildCountdownComplication(
             text = TimeDifferenceComplicationText.Builder(
                 TimeDifferenceStyle.SHORT_DUAL_UNIT,
                 CountDownTimeReference(departureTime)
-            ).setDisplayAsNow(false).setText("$lineNumber in ^1").build(),
+            ).setDisplayAsNow(false).setText("^1").build(),
             contentDescription = PlainComplicationText.Builder(text = "Short Text version of Number.")
                 .build()
+        ).setMonochromaticImage(
+            monochromaticAppIcon()
         )
             .build()
 

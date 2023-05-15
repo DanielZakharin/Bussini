@@ -70,9 +70,9 @@ class LegacyBussiniComplicationDataSource : SuspendingComplicationDataSourceServ
             return buildErrorBussiniComplication(request)
         } else if (res.body == null) {
             Timber.w("Apollo request result has no body\n $res")
-            // schedule a refresh attempt
-            scheduleComplicationRefreshWork(applicationContext, Duration.ofMinutes(1))
-            return buildErrorBussiniComplication(request)
+            // schedule a refresh attempt, but for later
+            scheduleComplicationRefreshWork(applicationContext, Duration.ofMinutes(10))
+            return buildNoDeparturesBussiniComplication(request)
         }
 
         val nextDeparture =
@@ -83,7 +83,7 @@ class LegacyBussiniComplicationDataSource : SuspendingComplicationDataSourceServ
             Timber.d("Pattern $patternId, stop $stopId")
             // schedule an update in an hour
             scheduleComplicationRefreshWork(applicationContext, Duration.ofHours(1))
-            return buildErrorBussiniComplication(request)
+            return buildNoDeparturesBussiniComplication(request)
         }
 
         val departureInstant = Instant.ofEpochMilli(nextDeparture)

@@ -61,18 +61,19 @@ private fun monochromaticAppIcon(iconRes: Int = R.drawable.ic_bus_default) =
     ).build()
 
 private fun buildPlainTextBussiniComplication(
-    text: String,
     complicationRequest: ComplicationRequest,
+    shortText: String,
+    longText: String = shortText,
     icon: () -> MonochromaticImage = { monochromaticAppIcon() }
 ) =
     when (complicationRequest.complicationType) {
         ComplicationType.SHORT_TEXT -> ShortTextComplicationData.Builder(
-            text = PlainComplicationText.Builder(text).build(),
-            contentDescription = PlainComplicationText.Builder(text).build(),
+            text = PlainComplicationText.Builder(shortText).build(),
+            contentDescription = PlainComplicationText.Builder(shortText).build(),
         ).build()
         ComplicationType.LONG_TEXT -> LongTextComplicationData.Builder(
-            text = PlainComplicationText.Builder(text).build(),
-            contentDescription = PlainComplicationText.Builder(text).build(),
+            text = PlainComplicationText.Builder(longText).build(),
+            contentDescription = PlainComplicationText.Builder(shortText).build(),
         ).setMonochromaticImage(
             icon()
         ).build()
@@ -84,14 +85,30 @@ private fun buildPlainTextBussiniComplication(
 
 fun buildErrorBussiniComplication(complicationRequest: ComplicationRequest) =
     buildPlainTextBussiniComplication(
-        "Failed to refresh",
-        complicationRequest
+        complicationRequest,
+        shortText = "Error",
+        longText = "Error, retrying..."
     ) {
         monochromaticAppIcon(R.drawable.ic_bus_error)
     }
 
 fun buildNoRouteBussiniComplication(complicationRequest: ComplicationRequest) =
-    buildPlainTextBussiniComplication("No route selected", complicationRequest)
+    buildPlainTextBussiniComplication(
+        complicationRequest,
+        shortText = "Select route",
+        longText = "No route selected",
+    ) {
+        monochromaticAppIcon(R.drawable.ic_bus_questionmark)
+    }
+
+fun buildNoDeparturesBussiniComplication(complicationRequest: ComplicationRequest) =
+    buildPlainTextBussiniComplication(
+        complicationRequest,
+        shortText = "None",
+        longText = "No departures found"
+    ) {
+        monochromaticAppIcon(R.drawable.ic_bus_questionmark)
+    }
 
 fun requestComplicationUpdate(context: Context) {
     val updateRequester = ComplicationDataSourceUpdateRequester.create(

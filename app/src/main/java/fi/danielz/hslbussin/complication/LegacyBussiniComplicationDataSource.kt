@@ -3,7 +3,6 @@ package fi.danielz.hslbussin.complication
 import androidx.wear.watchface.complications.data.*
 import androidx.wear.watchface.complications.datasource.ComplicationRequest
 import androidx.wear.watchface.complications.datasource.SuspendingComplicationDataSourceService
-import androidx.work.*
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.network.okHttpClient
 import fi.danielz.hslbussin.BuildConfig
@@ -39,7 +38,7 @@ class LegacyBussiniComplicationDataSource : SuspendingComplicationDataSourceServ
         .build()
 
     override fun getPreviewData(type: ComplicationType): ComplicationData =
-        buildDefaultBussiniComplication(
+        buildCountdownComplication(
             "123",
             Instant.now(),
             ComplicationRequest(-1, type) // TODO fix jank
@@ -92,7 +91,7 @@ class LegacyBussiniComplicationDataSource : SuspendingComplicationDataSourceServ
         val durationToDeparture = Duration.between(Instant.now(), departureInstant.plusSeconds(30L))
         scheduleComplicationRefreshWork(applicationContext, durationToDeparture)
 
-        return buildDefaultBussiniComplication(
+        return buildCountdownComplication(
             lineNumber = routeShortName,
             departureTime = departureInstant,
             complicationRequest = request

@@ -10,7 +10,7 @@ import fi.danielz.hslbussin.R
 import timber.log.Timber
 import java.time.Instant
 
-internal fun buildDefaultBussiniComplication(
+internal fun buildCountdownComplication(
     lineNumber: String,
     departureTime: Instant,
     complicationRequest: ComplicationRequest
@@ -36,8 +36,6 @@ internal fun buildDefaultBussiniComplication(
             ).setDisplayAsNow(false).setText("$lineNumber in ^1").build(),
             contentDescription = PlainComplicationText.Builder(text = "Short Text version of Number.")
                 .build()
-        ).setMonochromaticImage(
-            monochromaticAppIcon()
         )
             .build()
 
@@ -50,16 +48,15 @@ internal fun buildDefaultBussiniComplication(
                 ).setDisplayAsNow(false).setText("$lineNumber in ^1").build(),
                 contentDescription = PlainComplicationText.Builder(text = "Short Text version of Number.")
                     .build()
-            ).setMonochromaticImage(
-                monochromaticAppIcon()
             )
                 .build()
         }
     }
 
-private fun monochromaticAppIcon(iconRes: Int = R.drawable.ic_bus_default) = MonochromaticImage.Builder(
-    Icon.createWithResource("fi.danielz.hslbussin", iconRes)
-).build()
+private fun monochromaticAppIcon(iconRes: Int = R.drawable.ic_bus_default) =
+    MonochromaticImage.Builder(
+        Icon.createWithResource("fi.danielz.hslbussin", iconRes)
+    ).build()
 
 private fun buildPlainTextBussiniComplication(
     text: String,
@@ -70,14 +67,12 @@ private fun buildPlainTextBussiniComplication(
         ComplicationType.SHORT_TEXT -> ShortTextComplicationData.Builder(
             text = PlainComplicationText.Builder(text).build(),
             contentDescription = PlainComplicationText.Builder(text).build(),
-        ).setMonochromaticImage(
-            monochromaticAppIcon()
         ).build()
         ComplicationType.LONG_TEXT -> LongTextComplicationData.Builder(
             text = PlainComplicationText.Builder(text).build(),
             contentDescription = PlainComplicationText.Builder(text).build(),
         ).setMonochromaticImage(
-            monochromaticAppIcon()
+            icon()
         ).build()
         else -> {
             Timber.w("Unsupported complication type ${complicationRequest.complicationType.name}")

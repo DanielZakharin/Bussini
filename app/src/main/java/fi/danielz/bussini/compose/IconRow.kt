@@ -47,7 +47,7 @@ fun <T> IconRow(
             )
         }
         Spacer(modifier = Modifier.height(4.dp))
-        Divider()
+        Divider(thickness = 0.5.dp)
     }
 }
 

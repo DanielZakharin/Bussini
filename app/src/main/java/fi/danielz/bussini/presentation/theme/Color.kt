@@ -3,19 +3,22 @@ package fi.danielz.bussini.presentation.theme
 import androidx.compose.ui.graphics.Color
 import androidx.wear.compose.material.Colors
 
-val Purple200 = Color(0xFF1E8BF1)
-val Purple500 = Color(0xFF6200EE)
-val Purple700 = Color(0xFF3700B3)
-val Teal200 = Color(0xFF03DAC5)
-val Red400 = Color(0xFFCF6679)
+val Teal200 = Color(0xFFB1A7E2)
+val Red400 = Color(0xFFc45076)
 
-internal val wearColorPalette: Colors = Colors(
-    primary = Purple200,
-    primaryVariant = Purple700,
-    secondary = Teal200,
+val LightBlue300 = Color(0xFF698CCE)
+val LightBlue500 = Color(0xFF005bbc)
+val LightBlue700 = Color(0xFF0049a6)
+
+val colorPrimary = LightBlue300
+
+val bussiniColorPalette: Colors = Colors(
+    primary = colorPrimary,
+    primaryVariant = LightBlue700,
+    secondary = LightBlue500,
     secondaryVariant = Teal200,
     error = Red400,
-    onPrimary = Color.Black,
-    onSecondary = Color.Black,
-    onError = Color.Black
+    onPrimary = Color.White,
+    onSecondary = Color.White,
+    onError = Color.White
 )

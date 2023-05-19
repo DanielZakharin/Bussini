@@ -87,3 +87,9 @@ lint/tmp/
 
 # mac
 .DS_Store
+
+# local publish key
+publishKeyBussini.json
+
+# play publisher metadata
+/app/src/main/play/

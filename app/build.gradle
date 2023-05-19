@@ -6,6 +6,7 @@ plugins {
     id "com.apollographql.apollo3"
     id 'kotlin-parcelize'
     id 'androidx.navigation.safeargs.kotlin'
+    id 'com.github.triplet.play' version '3.8.3'
 
 }
 
@@ -140,6 +141,12 @@ dependencies {
 }
 kapt {
     correctErrorTypes true
+}
+
+// play publisher
+play {
+    serviceAccountCredentials.set(file("../publishKeyBussini.json"))
+    defaultToAppBundles.set(true)
 }
 
 

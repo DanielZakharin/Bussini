@@ -10,10 +10,12 @@ import androidx.compose.material.icons.filled.AirlineStops
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material.CircularProgressIndicator
 import androidx.wear.compose.material.MaterialTheme
+import fi.danielz.bussini.R
 import fi.danielz.bussini.compose.ErrorWithRetryButton
 import fi.danielz.bussini.compose.IconRow
 import fi.danielz.bussini.compose.SelectionHeader
@@ -67,7 +69,7 @@ fun StopSelectionScreen(
                         // add extra item for header
                         item {
                             SelectionHeader(
-                                "Select Stop"
+                                stringResource(R.string.stop_selection_select_stop)
                             )
                         }
                         items(uiState.stops.size) { index ->

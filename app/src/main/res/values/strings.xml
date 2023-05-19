@@ -1,3 +1,22 @@
 <resources>
     <string name="app_name">Bussini</string>
+    <string name="error_generic">An error has occurred! Please try again in a moment.</string>
+    <string name="common_retry">Retry</string>
+    <string name="direction_selection_select_direction">Select direction</string>
+    <string name="route_selection_select_route">Select bus route</string>
+    <string name="stop_display_switch_line">Switch Line</string>
+    <string name="stop_display_line">Line: %1$s</string>
+    <string name="stop_display_no_departures_title">No departures found. Switch route, or refresh</string>
+    <string name="stop_display_next_departure_in">Next departure in:</string>
+    <string name="stop_display_subsequent_departures_title">And then in:</string>
+    <string name="stop_selection_select_stop">Select Stop</string>
+    <string name="complication_coundown_long">Next %1$s in: ^1</string>
+    <string name="complication_coundown_short" translatable="false">^1</string>
+    <string name="complication_content_description">Time until next departure</string>
+    <string name="complication_error_short">Error</string>
+    <string name="complication_error_long">Error, retrying...</string>
+    <string name="complication_no_route_short">No route</string>
+    <string name="complication_no_route_long">No route selected</string>
+    <string name="complication_no_departures_short">None</string>
+    <string name="complication_no_departures_long">No departures found</string>
 </resources>

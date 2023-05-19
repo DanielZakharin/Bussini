@@ -7,6 +7,7 @@ import androidx.compose.material.icons.filled.DirectionsBus
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -14,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material.CircularProgressIndicator
 import androidx.wear.compose.material.MaterialTheme
+import fi.danielz.bussini.R
 import fi.danielz.bussini.compose.ErrorWithRetryButton
 import fi.danielz.bussini.compose.IconRow
 import fi.danielz.bussini.compose.SelectionHeader
@@ -79,7 +81,7 @@ fun RouteSelectionScreen(
                     ) {
                         // add extra item for header
                         item {
-                            SelectionHeader("Select bus route")
+                            SelectionHeader(stringResource(R.string.route_selection_select_route))
                         }
                         // row + divider
                         items(uiState.routes.size) { index ->

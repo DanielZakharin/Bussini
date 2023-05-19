@@ -11,6 +11,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -20,6 +21,7 @@ import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.MaterialTheme
+import fi.danielz.bussini.R
 import fi.danielz.bussini.compose.ErrorWithRetryButton
 import fi.danielz.bussini.compose.SelectionHeader
 import fi.danielz.bussini.presentation.stopdisplay.model.StopSingleDepartureData
@@ -101,14 +103,14 @@ fun StopDisplayScreen(
                                         modifier = Modifier.fillMaxWidth(0.75F)
                                     ) {
                                         Text(
-                                            text = "Switch Line",
+                                            text = stringResource(R.string.stop_display_switch_line),
                                             color = Color.White,
                                             textAlign = TextAlign.Center
                                         )
                                     }
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
-                                        text = "Line: ${uiState.routeTitle()}",
+                                        text = stringResource(R.string.stop_display_line, uiState.routeTitle()),
                                         fontSize = 20.sp,
                                         color = Color.White
                                     )
@@ -119,12 +121,12 @@ fun StopDisplayScreen(
                             if (uiState.departures.isEmpty()) {
                                 item {
                                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                        SelectionHeader(text = "No departures found. Switch route, or refresh")
+                                        SelectionHeader(text = stringResource(R.string.stop_display_no_departures_title))
                                         Spacer(modifier = Modifier.height(8.dp))
                                         Button(onClick = clickHandler::onRetryPressed) {
                                             Icon(
                                                 Icons.Default.Refresh,
-                                                contentDescription = "Retry"
+                                                contentDescription = stringResource(id = R.string.common_retry)
                                             )
                                         }
                                     }
@@ -132,7 +134,7 @@ fun StopDisplayScreen(
                             } else {
                                 // first departure and header
                                 item {
-                                    SelectionHeader(text = "Next departure in:")
+                                    SelectionHeader(text = stringResource(R.string.stop_display_next_departure_in))
                                 }
                                 item {
                                     uiState.departures.firstOrNull()?.let { departure ->
@@ -142,7 +144,7 @@ fun StopDisplayScreen(
                                 // subsequent departures
                                 if (uiState.departures.size > 1) {
                                     item {
-                                        SelectionHeader(text = "And then in:")
+                                        SelectionHeader(text = stringResource(R.string.stop_display_subsequent_departures_title))
                                     }
                                 }
                                 items(uiState.departures.size) { index ->

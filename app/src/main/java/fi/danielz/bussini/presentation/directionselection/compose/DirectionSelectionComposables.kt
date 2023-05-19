@@ -11,10 +11,12 @@ import androidx.compose.material.icons.filled.CompareArrows
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material.CircularProgressIndicator
 import androidx.wear.compose.material.MaterialTheme
+import fi.danielz.bussini.R
 import fi.danielz.bussini.compose.ErrorWithRetryButton
 import fi.danielz.bussini.compose.IconRow
 import fi.danielz.bussini.compose.SelectionHeader
@@ -64,7 +66,7 @@ fun DirectionSelectionScreen(
                         }?.directions ?: emptyList()
                         // add extra item for header
                         item {
-                            SelectionHeader("Select direction")
+                            SelectionHeader(stringResource(R.string.direction_selection_select_direction))
                         }
                         items(selectedRouteDirections.size) { index ->
                             IconRow(

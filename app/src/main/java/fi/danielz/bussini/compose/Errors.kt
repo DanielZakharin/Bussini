@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -23,7 +24,7 @@ import fi.danielz.bussini.R
 
 @Composable
 fun ErrorWithRetryButton(
-    errorText: String = "An error has occured! Please try again in a moment.",
+    errorText: String = stringResource(R.string.error_generic),
     onRetryClick: () -> Unit
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -42,7 +43,7 @@ fun ErrorWithRetryButton(
             textAlign = TextAlign.Center
         )
         Button(onClick = onRetryClick) {
-            Icon(Icons.Default.Refresh, contentDescription = "Retry")
+            Icon(Icons.Default.Refresh, contentDescription = stringResource(R.string.common_retry))
         }
     }
 }

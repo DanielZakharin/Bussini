@@ -13,7 +13,8 @@ import java.time.Instant
 internal fun buildCountdownComplication(
     lineNumber: String,
     departureTime: Instant,
-    complicationRequest: ComplicationRequest
+    complicationRequest: ComplicationRequest,
+    context: Context
 ) =
     when (complicationRequest.complicationType) {
 
@@ -21,8 +22,10 @@ internal fun buildCountdownComplication(
             text = TimeDifferenceComplicationText.Builder(
                 TimeDifferenceStyle.SHORT_DUAL_UNIT,
                 CountDownTimeReference(departureTime)
-            ).setDisplayAsNow(false).setText("Next $lineNumber in: ^1").build(),
-            contentDescription = PlainComplicationText.Builder(text = "Long Text version of Number.")
+            ).setDisplayAsNow(false)
+                .setText(context.getString(R.string.complication_coundown_long, lineNumber))
+                .build(),
+            contentDescription = PlainComplicationText.Builder(text = context.getString(R.string.complication_content_description))
                 .build()
         ).setMonochromaticImage(
             monochromaticAppIcon()
@@ -33,8 +36,10 @@ internal fun buildCountdownComplication(
             text = TimeDifferenceComplicationText.Builder(
                 TimeDifferenceStyle.SHORT_DUAL_UNIT,
                 CountDownTimeReference(departureTime)
-            ).setDisplayAsNow(false).setText("^1").build(),
-            contentDescription = PlainComplicationText.Builder(text = "Short Text version of Number.")
+            ).setDisplayAsNow(false)
+                .setText(context.getString(R.string.complication_coundown_short))
+                .build(),
+            contentDescription = PlainComplicationText.Builder(text = context.getString(R.string.complication_content_description))
                 .build()
         ).setMonochromaticImage(
             monochromaticAppIcon()
@@ -47,8 +52,10 @@ internal fun buildCountdownComplication(
                 text = TimeDifferenceComplicationText.Builder(
                     TimeDifferenceStyle.SHORT_DUAL_UNIT,
                     CountDownTimeReference(departureTime)
-                ).setDisplayAsNow(false).setText("$lineNumber in ^1").build(),
-                contentDescription = PlainComplicationText.Builder(text = "Short Text version of Number.")
+                ).setDisplayAsNow(false)
+                    .setText(context.getString(R.string.complication_coundown_short))
+                    .build(),
+                contentDescription = PlainComplicationText.Builder(text = context.getString(R.string.complication_content_description))
                     .build()
             )
                 .build()
@@ -83,29 +90,32 @@ private fun buildPlainTextBussiniComplication(
         }
     }
 
-fun buildErrorBussiniComplication(complicationRequest: ComplicationRequest) =
+fun buildErrorBussiniComplication(complicationRequest: ComplicationRequest, context: Context) =
     buildPlainTextBussiniComplication(
         complicationRequest,
-        shortText = "Error",
-        longText = "Error, retrying..."
+        shortText = context.getString(R.string.complication_error_short),
+        longText = context.getString(R.string.complication_error_long)
     ) {
         monochromaticAppIcon(R.drawable.ic_bus_error)
     }
 
-fun buildNoRouteBussiniComplication(complicationRequest: ComplicationRequest) =
+fun buildNoRouteBussiniComplication(complicationRequest: ComplicationRequest, context: Context) =
     buildPlainTextBussiniComplication(
         complicationRequest,
-        shortText = "Select route",
-        longText = "No route selected",
+        shortText = context.getString(R.string.complication_no_route_short),
+        longText = context.getString(R.string.complication_no_route_long),
     ) {
         monochromaticAppIcon(R.drawable.ic_bus_questionmark)
     }
 
-fun buildNoDeparturesBussiniComplication(complicationRequest: ComplicationRequest) =
+fun buildNoDeparturesBussiniComplication(
+    complicationRequest: ComplicationRequest,
+    context: Context
+) =
     buildPlainTextBussiniComplication(
         complicationRequest,
-        shortText = "None",
-        longText = "No departures found"
+        shortText = context.getString(R.string.complication_no_departures_short),
+        longText = context.getString(R.string.complication_no_departures_long)
     ) {
         monochromaticAppIcon(R.drawable.ic_bus_questionmark)
     }

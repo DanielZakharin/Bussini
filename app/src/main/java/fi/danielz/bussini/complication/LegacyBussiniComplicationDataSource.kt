@@ -42,7 +42,8 @@ class LegacyBussiniComplicationDataSource : SuspendingComplicationDataSourceServ
         buildCountdownComplication(
             "123",
             Instant.now(),
-            ComplicationRequest(-1, type) // TODO fix jank
+            ComplicationRequest(-1, type), // TODO fix jank
+            baseContext
         )
 
     override suspend fun onComplicationRequest(request: ComplicationRequest): ComplicationData? {
@@ -58,7 +59,7 @@ class LegacyBussiniComplicationDataSource : SuspendingComplicationDataSourceServ
 
         if (stopId == null || patternId == null) {
             Timber.d("No route selected, return buildNoRouteBussiniComplication")
-            return buildNoRouteBussiniComplication(request)
+            return buildNoRouteBussiniComplication(request, baseContext)
         }
 
         val res = apolloClient.queryAsNetworkResponse(StopQuery(stopId, patternId, 1))
@@ -67,12 +68,12 @@ class LegacyBussiniComplicationDataSource : SuspendingComplicationDataSourceServ
             Timber.e("Apollo request failed while updating complication", res.error)
             // schedule a refresh attempt
             scheduleComplicationRefreshWork(applicationContext, Duration.ofMinutes(1))
-            return buildErrorBussiniComplication(request)
+            return buildErrorBussiniComplication(request, baseContext)
         } else if (res.body == null) {
             Timber.w("Apollo request result has no body\n $res")
             // schedule a refresh attempt, but for later
             scheduleComplicationRefreshWork(applicationContext, Duration.ofMinutes(10))
-            return buildNoDeparturesBussiniComplication(request)
+            return buildNoDeparturesBussiniComplication(request, baseContext)
         }
 
         val nextDeparture =
@@ -83,7 +84,7 @@ class LegacyBussiniComplicationDataSource : SuspendingComplicationDataSourceServ
             Timber.d("Pattern $patternId, stop $stopId")
             // schedule an update in an hour
             scheduleComplicationRefreshWork(applicationContext, Duration.ofHours(1))
-            return buildNoDeparturesBussiniComplication(request)
+            return buildNoDeparturesBussiniComplication(request, baseContext)
         }
 
         val departureInstant = Instant.ofEpochMilli(nextDeparture)
@@ -95,7 +96,8 @@ class LegacyBussiniComplicationDataSource : SuspendingComplicationDataSourceServ
         return buildCountdownComplication(
             lineNumber = routeShortName,
             departureTime = departureInstant,
-            complicationRequest = request
+            complicationRequest = request,
+            context = baseContext
         )
     }
 

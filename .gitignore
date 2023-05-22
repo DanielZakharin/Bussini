@@ -90,3 +90,6 @@ lint/tmp/
 
 # local publish key
 publishKeyBussini.json
+
+# hide gradle properties
+gradle.properties

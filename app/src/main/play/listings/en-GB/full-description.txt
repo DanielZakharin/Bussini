@@ -1,0 +1,3 @@
+See your most important bus departure schedule at a glance, right on your Wear OS device. 
+
+Select your most used bus line and stop, and the app will let you know the next departure right on the watch face, updated in real time! Open the app to see even more departures.

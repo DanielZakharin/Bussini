@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="error_generic">Tapahtui virhe. Yritä hetken päästä uudelleen.</string>
+    <string name="common_retry">Päivitä</string>
+    <string name="direction_selection_select_direction">Valitse suunta</string>
+    <string name="route_selection_select_route">Valitse linja</string>
+    <string name="stop_display_switch_line">Vaihda linja</string>
+    <string name="stop_display_line">Linja: %1$s</string>
+    <string name="stop_display_no_departures_title">Ei lähtöjä. Vaihda linja tai päivitä</string>
+    <string name="stop_display_next_departure_in">Seuraava lähtö:</string>
+    <string name="stop_display_subsequent_departures_title">Ja sitten:</string>
+    <string name="stop_selection_select_stop">Valitse pysäkki</string>
+    <string name="complication_coundown_long">Seuraava %1$s: ^1</string>
+    <string name="complication_content_description">Seuraava lähtö</string>
+    <string name="complication_error_short">Virhe</string>
+    <string name="complication_error_long">Virhe, päivitetään...</string>
+    <string name="complication_no_route_short">Ei linjaa</string>
+    <string name="complication_no_route_long">Ei linjaa valittuna</string>
+    <string name="complication_no_departures_short">Ei lähtöjä</string>
+    <string name="complication_no_departures_long">Ei lähtöjä</string>
+</resources>

@@ -90,6 +90,3 @@ lint/tmp/
 
 # local publish key
 publishKeyBussini.json
-
-# play publisher metadata
-/app/src/main/play/

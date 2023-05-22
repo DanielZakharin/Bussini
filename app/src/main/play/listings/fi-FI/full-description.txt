@@ -1,0 +1,3 @@
+Näet itsellesi tärkeimmän bussin lähtöajat nopealla vilkaisulla, suoraan Wear OS älykellostasi.
+
+Valitse eniten käyttämäsi pysäkki ja sovellus näyttää sinulle milloin seuraava bussi lähtee, suoraan kellotaulussa! Lähtöajat päivittyvät reaaliajassa. Avaamalla sovelluksen, näet myös tulevat lähtöajat.

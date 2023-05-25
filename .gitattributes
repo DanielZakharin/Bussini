@@ -1,5 +1,7 @@
 # gradle build sectets
-build.secrets
+build.secrets filter=git-crypt diff=git-crypt
 
 # publish json
-publishKeyBussini.json
+publishKeyBussini.json filter=git-crypt diff=git-crypt
+
+.gitattributes !filter !diff

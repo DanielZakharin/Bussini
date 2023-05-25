@@ -1,0 +1,5 @@
+# gradle build sectets
+build.secrets
+
+# publish json
+publishKeyBussini.json

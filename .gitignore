@@ -87,9 +87,3 @@ lint/tmp/
 
 # mac
 .DS_Store
-
-# local publish key
-publishKeyBussini.json
-
-# hide gradle properties
-gradle.properties

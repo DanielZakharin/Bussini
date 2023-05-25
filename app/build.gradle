@@ -10,9 +10,9 @@ plugins {
 
 }
 
-def localPropertiesFile = rootProject.file("local.properties")
-def localProperties = new Properties()
-localProperties.load(new FileInputStream(localPropertiesFile))
+def secrets = new Properties()
+def secretsFile = rootProject.file('build.secrets')
+secrets.load(new FileInputStream(secretsFile))
 
 android {
     namespace 'fi.danielz.bussini'
@@ -28,15 +28,15 @@ android {
             useSupportLibrary true
         }
 
-        buildConfigField "String", "API_KEY", localProperties['apiKey']
+        buildConfigField "String", "API_KEY", secrets.getProperty('HSL_API_KEY')
 
     }
     signingConfigs {
         release {
-            storeFile file(RELEASE_STORE_FILE)
-            storePassword RELEASE_STORE_PASSWORD
-            keyAlias RELEASE_KEY_ALIAS
-            keyPassword RELEASE_KEY_PASSWORD
+            storeFile file(secrets.getProperty('RELEASE_STORE_FILE'))
+            storePassword secrets.getProperty('RELEASE_STORE_PASSWORD')
+            keyAlias secrets.getProperty('RELEASE_KEY_ALIAS')
+            keyPassword secrets.getProperty('RELEASE_KEY_PASSWORD')
         }
     }
 

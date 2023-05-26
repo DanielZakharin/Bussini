@@ -34,12 +34,17 @@ jobs:
       - name: Create local.properties
         run: |
           touch local.porperties
-          touch ${{ github.workspace }}/store_key
-          echo 'RELEASE_STORE_FILE=${{ github.workspace }}/store_key' >> local.properties
+          echo 'RELEASE_STORE_FILE=${{ github.workspace }}/store_key.jks' >> local.properties
       # create keystore file and write keystore secret data
+      # touch ${{ github.workspace }}/store_key
+      # run: |
+      #          echo `${{ secrets.RELEASE_STORE }} | base64 --decode` >> ${{ github.workspace }}/store_key
       - name: Write keystore data from secrets
-        run: |
-          echo `${{ secrets.RELEASE_STORE }} | base64 --decode` >> ${{ github.workspace }}/store_key
+        id: decode_keystore
+        uses: timheuer/base64-to-file@v1
+        with:
+          fileName: '${{ github.workspace }}/store_key.jks'
+          encodedString: ${{ secrets.RELEASE_STORE }}
 
       # run gradle scripts
       - name: Bump minor version number

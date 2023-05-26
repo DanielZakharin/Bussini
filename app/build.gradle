@@ -10,9 +10,16 @@ plugins {
 
 }
 
+// secrets file, "static" secrets
 def secrets = new Properties()
 def secretsFile = rootProject.file('build.secrets')
 secrets.load(new FileInputStream(secretsFile))
+
+// local properties secrets, can be different depending on machine
+def localProperties = new Properties()
+def localPropertyFile = rootProject.file('local.properties')
+localProperties.load(new FileInputStream(localPropertyFile))
+def releaseKeyPath = localProperties.getProperty('RELEASE_STORE_FILE').toString()
 
 android {
     namespace 'fi.danielz.bussini'
@@ -33,7 +40,7 @@ android {
     }
     signingConfigs {
         release {
-            storeFile file(secrets.getProperty('RELEASE_STORE_FILE'))
+            storeFile file(releaseKeyPath)
             storePassword secrets.getProperty('RELEASE_STORE_PASSWORD')
             keyAlias secrets.getProperty('RELEASE_KEY_ALIAS')
             keyPassword secrets.getProperty('RELEASE_KEY_PASSWORD')

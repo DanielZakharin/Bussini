@@ -43,7 +43,7 @@ jobs:
         id: decode_keystore
         uses: timheuer/base64-to-file@v1
         with:
-          fileName: '${{ github.workspace }}/store_key.jks'
+          fileName: ${{ github.workspace }}/store_key.jks
           encodedString: ${{ secrets.RELEASE_STORE }}
 
       # run gradle scripts

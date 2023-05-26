@@ -43,8 +43,12 @@ jobs:
         id: decode_keystore
         uses: timheuer/base64-to-file@v1
         with:
-          fileName: ${{ github.workspace }}/store_key.jks
+          fileDir: ${{ github.workspace }}
+          fileName: store_key.jks
           encodedString: ${{ secrets.RELEASE_STORE }}
+
+      - name: Ensure keystore
+        run: cat ${{ github.workspace }}/store_key.jks
 
       # run gradle scripts
       - name: Bump minor version number

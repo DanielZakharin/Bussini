@@ -1,0 +1,9 @@
+repositories {
+    gradlePluginPortal()
+    google()
+}
+
+dependencies {
+    implementation("com.google.auth:google-auth-library-oauth2-http:1.2.2")
+    implementation("com.google.apis:google-api-services-androidpublisher:v3-rev20201022-1.30.10")
+}

@@ -14,4 +14,3 @@ dependencyResolutionManagement {
 }
 rootProject.name = "bussini"
 include ':app'
-include ':publishing' // probs dont want this

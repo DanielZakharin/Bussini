@@ -6,8 +6,6 @@ plugins {
     id "com.apollographql.apollo3"
     id 'kotlin-parcelize'
     id 'androidx.navigation.safeargs.kotlin'
-    id 'com.github.triplet.play' version '3.8.3'
-
 }
 
 // secrets file, "static" secrets
@@ -29,7 +27,7 @@ android {
         applicationId 'fi.danielz.bussini'
         minSdk 30
         targetSdk 33
-        versionCode 5
+        versionCode 4
         versionName "1.2.0"
         vectorDrawables {
             useSupportLibrary true
@@ -63,7 +61,6 @@ android {
     }
     buildFeatures {
         compose true
-        dataBinding true
     }
     composeOptions {
         kotlinCompilerExtensionVersion '1.4.4'
@@ -150,6 +147,8 @@ tasks.addRule("Pattern: bump<TYPE>Version") { String taskName ->
     }
 }
 
+// task publishProdRelease(type: JavaPublisher)
+
 dependencies {
     implementation 'androidx.core:core-ktx:1.10.1'
     implementation 'com.google.android.gms:play-services-wearable:18.0.0'
@@ -162,7 +161,7 @@ dependencies {
     implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycle_version"
-    implementation 'androidx.activity:activity-compose:1.7.1'
+    implementation 'androidx.activity:activity-compose:1.7.2'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.wear.watchface:watchface-complications-data-source-ktx:1.1.1'
@@ -225,21 +224,10 @@ dependencies {
     // Jetpack Compose Integration
     implementation "androidx.navigation:navigation-compose:$nav_version"
 
-    // lottie
-    def lottieVersion = "6.0.0"
-    implementation "com.airbnb.android:lottie-compose:$lottieVersion"
-
 }
 kapt {
     correctErrorTypes true
 }
-
-// play publisher
-play {
-    serviceAccountCredentials.set(file("../publishKeyBussini.json"))
-    defaultToAppBundles.set(true)
-}
-
 
 apollo {
 

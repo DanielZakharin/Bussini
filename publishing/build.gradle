@@ -1,6 +1,9 @@
+import java.util.regex.Pattern
+
 plugins {
     id 'java'
     id 'kotlin'
+    id 'org.ajoberstar.grgit' version '5.2.0'
 }
 ext {
     javaMainClass = "fi.bussini.publishing.PlayStorePublisher"
@@ -16,8 +19,133 @@ java {
     targetCompatibility = JavaVersion.VERSION_1_8
 }
 
+
+// from https://stackoverflow.com/a/58899378
+class Version {
+
+    private int major
+    private int minor
+    private int patch
+    private int code
+
+    Version(int code, String version) {
+        this.code = code
+
+        def (major, minor, patch) = version.tokenize('.')
+        this.major = major.toInteger()
+        this.minor = minor.toInteger()
+        this.patch = patch.toInteger()
+    }
+
+    @SuppressWarnings("unused")
+    void bumpMajor() {
+        major += 1
+        minor = 0
+        patch = 0
+
+        code += 1
+    }
+
+    @SuppressWarnings("unused")
+    void bumpMinor() {
+        minor += 1
+        patch = 0
+
+        code += 1
+    }
+
+    @SuppressWarnings("unused")
+    void bumpPatch() {
+        patch += 1
+        code += 1
+    }
+
+    String getName() { "$major.$minor.$patch" }
+
+    int getCode() { code }
+}
+
+tasks.addRule("Pattern: bump<TYPE>Version") { String taskName ->
+    if (taskName.matches("bump(Major|Minor|Patch)Version")) {
+        task(taskName) {
+            doLast {
+
+                def versions = new Properties()
+                def versionsFile = rootProject.file('android.versions')
+                versions.load(new FileInputStream(versionsFile))
+                def oldVersionCode = versions.getProperty('versionCode').toInteger()
+                def oldVersionName = versions.getProperty('versionName').toString()
+
+                String type = (taskName - 'bump' - 'Version')
+
+                println "Bumping ${type.toLowerCase()} version…"
+
+                version = new Version(oldVersionCode, oldVersionName)
+                version."bump$type"()
+
+                String newVersionName = version.getName()
+                String newVersionCode = version.getCode()
+
+                println "$oldVersionName ($oldVersionCode) → $newVersionName ($newVersionCode)"
+
+                versionsFile.setText("versionCode=$newVersionCode\n" + "versionName=$newVersionName")
+            }
+        }
+    }
+}
+
+task checkoutMaster() {
+    group = "publishing"
+    description = "Check out master branch in VC and pull"
+    doFirst {
+        grgit.checkout {
+            branch = "master"
+        }
+    }
+}
+// cant call mustRunAfter ':app:*' for some reason...
+// workaround
+task cleanForPublish() {
+    dependsOn ':app:clean'
+}
+
+task buildForPublish() {
+    dependsOn ':app:bundleRelease'
+}
+
+task bumpVersionAndTag() {
+    group = "publishing"
+    description = "Bump minor version and make a new tag in VC"
+    bumpMinorVersion.mustRunAfter(checkoutMaster)
+    cleanForPublish.mustRunAfter(bumpMinorVersion)
+    buildForPublish.mustRunAfter(cleanForPublish)
+
+    dependsOn checkoutMaster, bumpMinorVersion, cleanForPublish, buildForPublish
+    doFirst {
+
+        // versions
+        def versions = new Properties()
+        def versionsFile = rootProject.file('android.versions')
+        versions.load(new FileInputStream(versionsFile))
+        def mVersionName = versions.getProperty('versionName').toString()
+
+        def tagName = "release_$mVersionName"
+
+        println grgit.tag.add(name: tagName)
+        println grgit.push {
+            refsOrSpecs = ["$tagName:$tagName"]
+        }
+
+    }
+}
+
 task publishProdRelease() {
-    dependsOn publishing: installDist
+    dependsOn bumpVersionAndTag
+    dependsOn installDist
+
+    group = "publishing"
+    description = "Publish Wear OS prod release to play store"
+
     String finalApkPath = ""
     String finalCredentialsPath = ""
     doFirst {
@@ -37,8 +165,6 @@ task publishProdRelease() {
     }
     doLast {
         javaexec {
-            group = "PlayPublisher"
-            description = "Publish Wear OS prod release to play store"
             classpath = sourceSets.main.runtimeClasspath
             main = javaMainClass
             String desiredStatus = publishStatus ? publishStatus : "complete"

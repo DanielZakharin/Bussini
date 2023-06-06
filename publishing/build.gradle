@@ -1,9 +1,13 @@
 plugins {
-    id 'kotlin'
+    id 'java'
     id 'application'
+    id 'kotlin'
+}
+ext {
+    javaMainClass = "fi.bussini.publishing.PlayStorePublisher"
 }
 application {
-    mainClassName = "fi.bussini.publishing.PlayStorePublisher"
+    mainClassName = javaMainClass
 }
 dependencies {
     implementation("com.google.auth:google-auth-library-oauth2-http:1.2.2")
@@ -12,4 +16,18 @@ dependencies {
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+task publishProdRelease(type: JavaExec) {
+    doFirst {
+        println apkPath
+        println credentialsPath
+    }
+    doLast {
+        group = "PlayPublisher"
+        description = "Publish Wear OS prod release to play store"
+        classpath = sourceSets.main.runtimeClasspath
+        main = javaMainClass
+        //args 'Arg1', apkpath, credentialsPath
+    }
 }

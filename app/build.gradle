@@ -175,7 +175,6 @@ play {
     defaultToAppBundles.set(true)
 }
 
-
 apollo {
 
     service("service") {

@@ -110,17 +110,25 @@ task cleanForPublish() {
 }
 
 task buildForPublish() {
+    dependsOn ':app:build'
+}
+
+task bundleForPublish() {
     dependsOn ':app:bundleRelease'
 }
 
+ext {
+    tagName = ""
+}
 task bumpVersionAndTag() {
     group = "publishing"
     description = "Bump minor version and make a new tag in VC"
     bumpMinorVersion.mustRunAfter(checkoutMaster)
     cleanForPublish.mustRunAfter(bumpMinorVersion)
     buildForPublish.mustRunAfter(cleanForPublish)
+    bundleForPublish.mustRunAfter(buildForPublish)
 
-    dependsOn checkoutMaster, bumpMinorVersion, cleanForPublish, buildForPublish
+    dependsOn checkoutMaster, bumpMinorVersion, cleanForPublish, buildForPublish, bundleForPublish
     doFirst {
 
         // versions
@@ -129,13 +137,13 @@ task bumpVersionAndTag() {
         versions.load(new FileInputStream(versionsFile))
         def mVersionName = versions.getProperty('versionName').toString()
 
-        def tagName = "release_$mVersionName"
+        ext.tagName = "release_$mVersionName"
 
-        println grgit.tag.add(name: tagName)
-        println grgit.push {
-            refsOrSpecs = ["$tagName:$tagName"]
+        grgit.add { patterns = ['.'] }
+        grgit.commit {
+            message = "Release $tagName"
         }
-
+        println grgit.tag.add(name: tagName)
     }
 }
 
@@ -169,6 +177,10 @@ task publishProdRelease() {
             main = javaMainClass
             String desiredStatus = publishStatus ? publishStatus : "complete"
             args = [finalApkPath, finalCredentialsPath, desiredStatus]
+        }
+        def tagName = ext.tagName
+        println grgit.push {
+            refsOrSpecs = ["$tagName:$tagName", "$tagName:master"]
         }
     }
 }

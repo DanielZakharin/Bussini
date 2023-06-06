@@ -105,7 +105,7 @@ private fun updateTrack(
         this.versionCodes = listOf(newVersionCode)
         this.releaseNotes = newReleaseNotes ?: prevRelease?.releaseNotes
         this.name = "Release version $newVersionCode"
-        this.status = "completed"
+        this.status = publishStatus
     }
 
     wearOSProdTrack.releases = listOf(newRelease)

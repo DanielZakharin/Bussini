@@ -103,19 +103,6 @@ task checkoutMaster() {
         }
     }
 }
-// cant call mustRunAfter ':app:*' for some reason...
-// workaround
-task cleanForPublish() {
-    dependsOn ':app:clean'
-}
-
-task buildForPublish() {
-    dependsOn ':app:build'
-}
-
-task bundleForPublish() {
-    dependsOn ':app:bundleRelease'
-}
 
 ext {
     tagName = ""
@@ -123,12 +110,7 @@ ext {
 task bumpVersionAndTag() {
     group = "publishing"
     description = "Bump minor version and make a new tag in VC"
-    bumpMinorVersion.mustRunAfter(checkoutMaster)
-    cleanForPublish.mustRunAfter(bumpMinorVersion)
-    buildForPublish.mustRunAfter(cleanForPublish)
-    bundleForPublish.mustRunAfter(buildForPublish)
 
-    dependsOn checkoutMaster, bumpMinorVersion, cleanForPublish, buildForPublish, bundleForPublish
     doFirst {
 
         // versions

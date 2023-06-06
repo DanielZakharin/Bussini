@@ -1,14 +1,12 @@
 plugins {
     id 'java'
-    id 'application'
     id 'kotlin'
 }
 ext {
     javaMainClass = "fi.bussini.publishing.PlayStorePublisher"
 }
-application {
-    mainClassName = javaMainClass
-}
+apply plugin: 'application'
+mainClassName = javaMainClass
 dependencies {
     implementation("com.google.auth:google-auth-library-oauth2-http:1.2.2")
     implementation("com.google.apis:google-api-services-androidpublisher:v3-rev20201022-1.30.10")
@@ -18,16 +16,33 @@ java {
     targetCompatibility = JavaVersion.VERSION_1_8
 }
 
-task publishProdRelease(type: JavaExec) {
+task publishProdRelease() {
+    dependsOn publishing: installDist
+    String finalApkPath = ""
+    String finalCredentialsPath = ""
     doFirst {
-        println apkPath
-        println credentialsPath
+        // verify params
+        if (!project.hasProperty("apkPath") || !project.hasProperty("credentialsPath")) {
+            throw new GradleException("Missing script params!")
+        }
+        // verify file paths are valid
+        finalApkPath = file(apkPath).exists() ? apkPath : "${rootDir}/$apkPath"
+        if (!file(finalApkPath).exists()) {
+            throw new GradleException("Apk file not found in path: $apkPath\nor in full path: $finalApkPath")
+        }
+        finalCredentialsPath = file(credentialsPath).exists() ? credentialsPath : "${rootDir}/$credentialsPath"
+        if (!file(finalCredentialsPath).exists()) {
+            throw new GradleException("Credentials file not found in path $credentialsPath\nor in full path $finalCredentialsPath")
+        }
     }
     doLast {
-        group = "PlayPublisher"
-        description = "Publish Wear OS prod release to play store"
-        classpath = sourceSets.main.runtimeClasspath
-        main = javaMainClass
-        //args 'Arg1', apkpath, credentialsPath
+        javaexec {
+            group = "PlayPublisher"
+            description = "Publish Wear OS prod release to play store"
+            classpath = sourceSets.main.runtimeClasspath
+            main = javaMainClass
+            String desiredStatus = publishStatus ? publishStatus : "complete"
+            args = [finalApkPath, finalCredentialsPath, desiredStatus]
+        }
     }
 }

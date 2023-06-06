@@ -18,24 +18,29 @@ import java.io.FileInputStream
 
 private const val WEAR_OS_PROD_TRACK = "wear:production"
 
+private val allowedPublishStatuses = listOf("complete", "draft")
+
 // from https://github.com/stasheq/google-play-apk-upload/blob/main/apk_upload/src/main/kotlin/me/szymanski/apkupload/Main.kt
 object PlayStorePublisher {
     @JvmStatic
     fun main(args: Array<String>) {
         try {
-            println("Started upload script!")
-            val appId = args[0]
-            val apkPath = args[1]
-            val credentialsPath = args[2]
-            println("Received arguments\nappId: $appId\napkPath: $apkPath\ncredentialsPath: $credentialsPath")
-
+            println("Started upload script at ${System.currentTimeMillis()}!")
+            val appId = "fi.danielz.bussini"
+            val apkPath = args[0]
+            val credentialsPath = args[1]
+            val publishStatus = args.getOrElse(2) { "complete" }
+            if (!allowedPublishStatuses.contains(publishStatus)) {
+                throw Exception("Illegal publish status!")
+            }
+            println("Release will have status: $publishStatus")
             val credentials = authenticate(credentialsPath)
             println("Succesfully authenticated with credentials")
             val androidPublisher = makePublisher(credentials)
             println("Succesfully instantiated AndroidPublisher")
 
             val bundleVersionNumber = uploadBundle(appId, apkPath, androidPublisher)
-            updateTrack(androidPublisher, appId, bundleVersionNumber)
+            updateTrack(androidPublisher, appId, bundleVersionNumber, publishStatus)
             println("Success! New release created")
         } catch (e: Exception) {
             println("Exception when trying to upload to Play Store!")
@@ -82,7 +87,8 @@ private fun updateTrack(
     publisher: AndroidPublisher,
     appId: String,
     newVersionCode: Long,
-    newReleaseNotes: List<LocalizedText>? = null
+    publishStatus: String,
+    newReleaseNotes: List<LocalizedText>? = null,
 ) {
     val trackEdit: AppEdit = publisher.edits().insert(appId, null).execute()
     println("Created edit for editing track: ${trackEdit.id}")

@@ -108,6 +108,7 @@ ext {
     tagName = ""
 }
 task bumpVersionAndTag() {
+    dependsOn bumpMinorVersion
     group = "publishing"
     description = "Bump minor version and make a new tag in VC"
 

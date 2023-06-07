@@ -3,7 +3,6 @@ import java.util.regex.Pattern
 plugins {
     id 'java'
     id 'kotlin'
-    id 'org.ajoberstar.grgit' version '5.2.0'
 }
 ext {
     javaMainClass = "fi.bussini.publishing.PlayStorePublisher"
@@ -94,19 +93,6 @@ tasks.addRule("Pattern: bump<TYPE>Version") { String taskName ->
     }
 }
 
-task checkoutMaster() {
-    group = "publishing"
-    description = "Check out master branch in VC and pull"
-    doFirst {
-        grgit.checkout {
-            branch = "master"
-        }
-    }
-}
-
-ext {
-    tagName = ""
-}
 task bumpVersionAndTag() {
     dependsOn bumpMinorVersion
     group = "publishing"
@@ -119,14 +105,6 @@ task bumpVersionAndTag() {
         def versionsFile = rootProject.file('android.versions')
         versions.load(new FileInputStream(versionsFile))
         def mVersionName = versions.getProperty('versionName').toString()
-
-        ext.tagName = "release_$mVersionName"
-
-        grgit.add { patterns = ['.'] }
-        grgit.commit {
-            message = "Release $tagName"
-        }
-        println grgit.tag.add(name: tagName)
     }
 }
 
@@ -159,10 +137,6 @@ task publishProdRelease() {
             main = javaMainClass
             String desiredStatus = publishStatus ? publishStatus : "complete"
             args = [finalApkPath, finalCredentialsPath, desiredStatus]
-        }
-        def tagName = ext.tagName
-        println grgit.push {
-            refsOrSpecs = ["$tagName:$tagName", "$tagName:master"]
         }
     }
 }

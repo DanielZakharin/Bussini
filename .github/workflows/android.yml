@@ -53,7 +53,11 @@ jobs:
       # run gradle scripts
       - name: Bump minor version number
         run: ./gradlew bumpMinorVersion
-      - name: Build with Gradle
-        run: ./gradlew build
+      - name: Clean and build with Gradle
+        run: | 
+          ./gradlew clean
+          ./gradlew build
+      - name: Bundle release version
+        run: ./gradlew bundleRelease
       - name: Publish to Play Store
-        run: ./gradlew publishReleaseBundle
+        run: ./gradlew publishProdRelease -PapkPath=./app/build/outputs/bundle/release/app-release.aab -PcredentialsPath=publishKeyBussini.json -PpublishStatus=draft

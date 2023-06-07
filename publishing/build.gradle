@@ -130,7 +130,6 @@ task bumpVersionAndTag() {
 }
 
 task publishProdRelease() {
-    dependsOn bumpVersionAndTag
     dependsOn installDist
 
     group = "publishing"
